@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0d0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>短影音內容獲客工作台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e0d0b;--s1:#171510;--s2:#201d16;--s3:#2a261d;--line:#352f23;--tx:#f3ede1;--mu:#a69d8a;--gold:#d6a84c;--gold2:#ecc77a;--goldd:#2a2110;--red:#e0705a;--grn:#86b982;--r:14px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 17px/1.7 'Noto Sans TC',-apple-system,BlinkMacSystemFont,'PingFang TC','Heiti TC','Microsoft JhengHei',sans-serif;overflow-wrap:anywhere}
+body.noscroll{overflow:hidden}
+a{color:var(--gold2)}
+h1,h2,h3,h4{margin:0;line-height:1.4}
+h2{font-size:22px}h3{font-size:19px}h4{font-size:17px;font-weight:700}
+p{margin:0 0 10px}
+.muted{color:var(--mu)}
+.small{font-size:14px}
+.pre{white-space:pre-wrap;word-break:break-word}
+.hide{display:none!important}
+
+#app{min-height:100vh}
+#sidebar{display:none}
+#main{min-width:0}
+#topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top));background:rgba(14,13,11,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+#topbar h1{font-size:18px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--s2);color:var(--tx);font:inherit;font-size:22px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+.pill{max-width:46vw;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #5a4719;background:var(--goldd);color:var(--gold2);font:inherit;font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+#view{padding:16px 16px 120px;max-width:880px;margin:0 auto}
+
+#tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(23,21,16,.97);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+#tabbar a,#tabbar button{flex:1;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:0;color:var(--mu);font:inherit;font-size:12.5px;text-decoration:none;cursor:pointer}
+#tabbar svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#tabbar .on{color:var(--gold)}
+
+.card{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.card.hi{background:var(--s2);border-top:2px solid var(--gold)}
+.card h3{margin-bottom:6px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.bar .btn{flex:1 1 150px}
+.sec-t{margin:22px 0 10px;font-size:18px}
+
+.btn{min-height:48px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:var(--s2);color:var(--tx);font:inherit;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-align:center;text-decoration:none}
+.btn.gold{background:var(--gold);color:#1b1407;border-color:var(--gold);font-weight:700}
+.btn.danger{color:var(--red)}
+.btn.sm{min-height:44px;padding:0 14px;font-size:15px}
+.btn.block{display:flex;width:100%}
+.btn:disabled{opacity:.55;cursor:default}
+:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+
+.fld{margin-bottom:14px}
+.fld label{display:block;margin-bottom:6px;font-size:15px;color:var(--mu);font-weight:500}
+.req{color:var(--gold);font-size:12px;margin-left:4px}
+.inp{width:100%;min-height:48px;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--tx);font:inherit;font-size:16px;line-height:1.6;appearance:none;-webkit-appearance:none}
+textarea.inp{min-height:110px;resize:vertical}
+select.inp{background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);background-position:calc(100% - 22px) 50%,calc(100% - 16px) 50%;background-size:6px 6px;background-repeat:no-repeat;padding-right:40px}
+.inp:focus{border-color:var(--gold);outline:none}
+
+.filters{margin-bottom:12px}
+.frow{display:flex;gap:8px;margin-top:8px}
+.frow .inp{flex:1;min-width:0}
+
+.item h4{margin-bottom:6px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.badge{display:inline-block;padding:1px 10px;border-radius:999px;font-size:13px;border:1px solid var(--line);color:var(--mu)}
+.badge.gold{color:var(--gold2);border-color:#5a4719}
+.clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.acts .btn{flex:1 1 72px}
+.empty{padding:28px 16px;text-align:center;color:var(--mu);border:1px dashed var(--line);border-radius:var(--r)}
+.empty .btn{margin-top:12px}
+
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.stat{display:block;padding:14px;border-radius:var(--r);background:var(--s1);border:1px solid var(--line);text-decoration:none;color:var(--tx)}
+.stat b{display:block;font-size:30px;line-height:1.2;color:var(--gold)}
+.stat span{font-size:14px;color:var(--mu)}
+.quick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.quick .btn{min-height:56px}
+.meter{height:8px;border-radius:99px;background:var(--s3);overflow:hidden;margin:10px 0 6px}
+.meter i{display:block;height:100%;background:var(--gold)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.chip{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--s2);color:var(--tx);font:inherit;font-size:15px;cursor:pointer}
+.chip.on{border-color:var(--gold);color:var(--gold2);background:var(--goldd)}
+
+.back{display:inline-block;margin-bottom:12px;padding:8px 0;text-decoration:none;color:var(--gold2)}
+.savebar{position:sticky;bottom:calc(70px + env(safe-area-inset-bottom));z-index:15;display:flex;gap:10px;padding:10px;background:rgba(14,13,11,.94);border:1px solid var(--line);border-radius:var(--r);margin-top:8px}
+.savebar .btn{flex:1}
+
+.chain{list-style:none;margin:0 0 4px;padding:0}
+.chain li{padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
+.chain li small{display:block;color:var(--mu);font-size:13px}
+.chain li+li{margin-top:16px;position:relative}
+.chain li+li::before{content:'';position:absolute;left:22px;top:-16px;height:16px;width:2px;background:var(--gold)}
+
+#chatlog{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
+.bubble{max-width:92%;padding:12px 14px;border-radius:16px;white-space:pre-wrap;word-break:break-word}
+.bubble.q{align-self:flex-end;background:var(--goldd);border:1px solid #5a4719}
+.bubble.a{align-self:flex-start;background:var(--s2);border:1px solid var(--line)}
+.bubble small{display:block;margin-top:8px;color:var(--mu);font-size:13px}
+
+#modal-root:not(.open){display:none}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;max-height:92vh;max-height:92dvh;display:flex;flex-direction:column;background:var(--s1);border:1px solid var(--line);border-radius:20px 20px 0 0}
+.sheet-h{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.sheet-h h3{flex:1}
+.sheet-b{padding:16px;overflow:auto;-webkit-overflow-scrolling:touch}
+.sheet-f{display:flex;gap:10px;padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.sheet-f .btn{flex:1}
+.sheet-f:empty{display:none}
+.mlink{display:flex;align-items:center;min-height:50px;padding:0 12px;border-radius:10px;color:var(--tx);text-decoration:none}
+.mlink.on{background:var(--goldd);color:var(--gold2)}
+.mgroup{margin:12px 0 4px;font-size:14px;color:var(--mu)}
+.radio{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
+.radio input{width:22px;height:22px;margin-top:3px;accent-color:#d6a84c}
+
+#toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translate(-50%,10px);z-index:60;max-width:88vw;padding:12px 18px;border-radius:12px;background:#f3ede1;color:#1b1407;font-size:15px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media(min-width:700px){
+ .sheet{left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%);width:640px;max-height:86vh;border-radius:20px}
+ .stats{grid-template-columns:repeat(4,1fr)}
+ .quick{grid-template-columns:repeat(5,1fr)}
+}
+@media(min-width:900px){
+ #app{display:grid;grid-template-columns:268px minmax(0,1fr)}
+ #sidebar{display:block;position:sticky;top:0;height:100vh;overflow:auto;padding:22px 14px;background:var(--s1);border-right:1px solid var(--line)}
+ #sidebar .brand{font-size:19px;font-weight:700;color:var(--gold2);padding:0 12px 10px}
+ #tabbar,.menu-btn{display:none}
+ #view{padding-bottom:60px}
+ .savebar{bottom:12px}
+ #toast{bottom:30px}
+}
+.btn,.chip,.icon-btn,.pill{transition:transform .08s ease,box-shadow .12s ease,background-color .12s}
+.btn:active,.chip:active,.icon-btn:active,.pill:active{transform:scale(.96);box-shadow:inset 0 2px 6px rgba(0,0,0,.45)}
+.btn.gold:active{background:var(--gold2);box-shadow:inset 0 2px 6px rgba(0,0,0,.3)}
+.btn.ghost{background:transparent;border-color:#5a4719;color:var(--gold2)}
+.acts .btn.wide{flex:1 1 100%}
+.item{scroll-margin-top:76px}
+.card.flash{animation:flash 1.5s ease}
+@keyframes flash{0%{box-shadow:0 0 0 2px var(--gold)}100%{box-shadow:0 0 0 0 transparent}}
+.kv{margin:0 0 8px}
+.kv b{display:block;font-size:14px;font-weight:500;color:var(--gold2)}
+.kv span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap;word-break:break-word;color:var(--mu)}
+.meta{font-size:14px;color:var(--mu);margin:0 0 8px}
+.full{margin:6px 0 0}
+.full .sec{padding:12px 0;border-top:1px solid var(--line)}
+.full dt{font-size:14px;font-weight:700;color:var(--gold2);margin:0 0 4px}
+.full dd{margin:0;white-space:pre-wrap;word-break:break-word}
+.chain li .v{white-space:pre-wrap}
+
+.syncdot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--mu)}
+.syncdot.ok{background:var(--grn)}
+.syncdot.busy{background:var(--gold);animation:pulse 1s ease-in-out infinite}
+.syncdot.warn{background:#e0a24a}
+.syncdot.err{background:var(--red)}
+@keyframes pulse{50%{opacity:.35}}
+.stack .btn{display:flex;flex-direction:column;align-items:flex-start;width:100%;height:auto;min-height:56px;padding:12px 14px;margin-bottom:10px;text-align:left}
+.stack .btn small{display:block;margin-top:2px;font-size:13px;font-weight:400;color:var(--mu)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+ <aside id="sidebar" aria-label="主選單"></aside>
+ <div id="main">
+  <header id="topbar">
+   <button class="icon-btn menu-btn" data-act="menu" aria-label="開啟選單">☰</button>
+   <h1 id="ptitle">首頁</h1>
+   <span id="syncdot" class="syncdot hide" role="img" aria-label="雲端同步狀態"></span>
+   <button class="pill" id="clientpill" data-act="pickClient" aria-label="切換業主"></button>
+  </header>
+  <main id="view"></main>
+ </div>
+</div>
+<nav id="tabbar" aria-label="快速導覽"></nav>
+<div id="modal-root"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<noscript><p style="padding:20px">此工具需要啟用 JavaScript。</p></noscript>
+
+<script>
+(function(){
+'use strict';
+
+/* ============ 基本設定與工具 ============ */
+const APP={V:1,K:{data:'bsw.data',set:'bsw.settings',bad:'bsw.data.unreadable',sync:'bsw.sync',prev:'bsw.data.prev'}};
+const $=(s,r)=>(r||document).querySelector(s);
+const $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const iso=()=>new Date().toISOString();
+const pad=n=>String(n).padStart(2,'0');
+const fdate=s=>{if(!s)return'';const d=new Date(s);if(isNaN(d))return String(s);return d.getFullYear()+'/'+pad(d.getMonth()+1)+'/'+pad(d.getDate())};
+const short=(s,n)=>{s=String(s==null?'':s).replace(/\s+/g,' ').trim();return s.length>n?s.slice(0,n)+'…':s};
+
+let toastT;
+function toast(m,ms){m=String(m);const good=/已|完成/.test(m)&&!/失敗|無法|不能|錯誤/.test(m);const t=$('#toast');t.textContent=(good?'✓ ':'')+m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),ms||2400)}
+
+function copyText(t){
+  t=String(t==null?'':t);
+  function fb(){const ta=document.createElement('textarea');ta.value=t;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(ta);ta.focus();ta.select();try{ta.setSelectionRange(0,t.length)}catch(e){}let ok=false;try{ok=document.execCommand('copy')}catch(e){}document.body.removeChild(ta);toast(ok?'已複製':'無法自動複製，請長按文字手動複製')}
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(()=>toast('已複製'),fb)}else fb();
+}
+function setBusy(btn,on,label){if(!btn)return;if(on){btn.dataset.old=btn.textContent;btn.textContent=label||'處理中…';btn.disabled=true}else{btn.textContent=btn.dataset.old||btn.textContent;btn.disabled=false}}
+
+/* ============ 資料層（localStorage + 版本） ============ */
+const TOPIC_TYPES=['綜合推薦','人設型選題','獲客型選題','泛流量型選題'];
+const TOPIC_STATUS=['待製作','製作中','已完成'];
+const SCRIPT_STATUS=['草稿','已保存','已發佈'];
+const ASSET_TYPES=['文案','腳本','靈感','素材','其他'];
+const COLS=['stories','services','cases','topics','scripts','frameworks','teardowns','ctas','funnels','assets'];
+
+/* 資料結構升級：key = 舊版本號，函式把資料升到下一版。未來改欄位時在這裡加 migration。 */
+const MIGRATIONS={
+  // 1:function(db){ /* v1 → v2 的轉換寫在這裡 */ }
+};
+
+function newClient(name){const c={id:uid(),name:name,createdAt:iso(),brand:{},persona:{},chats:[]};COLS.forEach(k=>c[k]=[]);return c}
+function normClient(c){c=c||{};c.id=c.id||uid();c.name=c.name||'未命名業主';c.createdAt=c.createdAt||iso();c.brand=c.brand&&typeof c.brand==='object'?c.brand:{};c.persona=c.persona&&typeof c.persona==='object'?c.persona:{};COLS.concat(['chats']).forEach(k=>{if(!Array.isArray(c[k]))c[k]=[]});return c}
+function migrate(db){
+  db=db||{};db.dataVersion=Number(db.dataVersion)||1;
+  while(db.dataVersion<APP.V){const fn=MIGRATIONS[db.dataVersion];if(fn)fn(db);db.dataVersion++}
+  db.clients=(Array.isArray(db.clients)?db.clients:[]).map(normClient);
+  if(!db.clients.some(c=>c.id===db.currentClientId))db.currentClientId=db.clients[0]?db.clients[0].id:null;
+  return db;
+}
+function loadDB(){
+  let raw=null;try{raw=localStorage.getItem(APP.K.data)}catch(e){}
+  const fresh={dataVersion:APP.V,currentClientId:null,clients:[]};
+  if(!raw)return fresh;
+  try{return migrate(JSON.parse(raw))}catch(e){
+    try{localStorage.setItem(APP.K.bad,raw)}catch(_){}
+    setTimeout(()=>toast('舊資料無法讀取，已另存一份備份並建立新資料',4000),600);
+    return fresh;
+  }
+}
+let warnedStore=false;
+function persist(){
+  DB.dataVersion=APP.V;
+  try{localStorage.setItem(APP.K.data,JSON.stringify(DB))}catch(e){if(!warnedStore){warnedStore=true;toast('儲存失敗：瀏覽器空間不足，或正在無痕模式。請先匯出備份',5000)}}
+  syncAfterPersist();
+}
+function loadSettings(){try{const s=JSON.parse(localStorage.getItem(APP.K.set)||'{}');return{endpoint:s.endpoint||'',model:s.model||'',key:s.key||''}}catch(e){return{endpoint:'',model:'',key:''}}}
+function saveSettings(){try{localStorage.setItem(APP.K.set,JSON.stringify(SET))}catch(e){toast('設定儲存失敗')}}
+
+let DB=loadDB();
+let SET=loadSettings();
+let SYNC=loadSync();
+const UI={f:{},sugg:[],topicType:TOPIC_TYPES[0],editTD:null,iv:null,confirmRes:null,exp:{}};
+const VIEWS={};
+const VIEWOPT={};
+const cur=()=>DB.clients.find(c=>c.id===DB.currentClientId)||null;
+
+/* ============ 欄位定義 ============ */
+const T=(k,l,x)=>Object.assign({k:k,l:l,t:'text'},x||{});
+const A=(k,l,x)=>Object.assign({k:k,l:l,t:'area'},x||{});
+const S=(k,l,opts,x)=>Object.assign({k:k,l:l,t:'sel',opts:opts},x||{});
+const storyOpts=()=>['',...(cur()?cur().stories.map(s=>s.title):[])];
+const svcShort=n=>{n=String(n==null?'':n).trim();const p=n.split(/[｜|]/)[0].trim()||n;return p.length>30?p.slice(0,30)+'…':p};
+const svcOpts=()=>[{v:'',l:''}].concat(cur()?cur().services.filter(s=>s.name).map(s=>({v:s.name,l:svcShort(s.name)})):[]);
+
+const BRAND=[T('name','品牌名稱'),T('identity','身份'),T('job','職業'),A('expertise','專業領域',{rows:3}),A('trait','個人特色',{rows:3}),A('tone','說話語氣',{rows:3}),A('values','價值觀',{rows:3}),A('direction','內容方向',{rows:3}),A('audience','目標客群',{rows:3}),A('diff','差異化',{rows:3}),A('offers','服務與產品',{rows:3})];
+const PERSONA=[A('oneLine','一句話定位',{rows:2,ph:'我幫【誰】解決【什麼問題】，用【獨特方式】'}),T('identity','身份'),A('expertise','專業',{rows:3}),A('audience','目標客群',{rows:3}),A('pain','客戶痛點',{rows:3}),A('diff','差異化',{rows:3}),A('trust','可信任理由',{rows:3}),A('pillars','內容支柱',{rows:3,ph:'例如：心態／方法／案例'}),A('tone','語氣風格',{rows:3})];
+
+const ENT={
+ stories:{label:'品牌故事',title:'title',sum:['content'],typeKey:'tags',fields:[T('title','故事標題',{req:1}),A('content','故事內容',{rows:6}),T('when','發生時間'),T('people','人物'),A('background','事件背景',{rows:3}),A('conflict','衝突',{rows:3}),A('twist','轉折',{rows:3}),A('result','結果',{rows:3}),A('insight','得到的體悟',{rows:3}),A('topics','可以延伸的內容主題',{rows:3}),T('tags','故事標籤',{ph:'用逗號分隔，例如：低谷, 轉職'})]},
+ services:{label:'服務與產品',title:'name',sum:['intro','price'],fields:[T('name','名稱',{req:1}),A('intro','介紹',{rows:3}),T('price','價格'),A('audience','適合對象',{rows:3}),A('solves','解決問題',{rows:3}),A('features','特色',{rows:3}),A('flow','服務流程',{rows:3}),T('cta','CTA')]},
+ cases:{label:'客戶案例',title:'title',sum:['problem','result'],fields:[T('title','案例標題',{req:1}),A('problem','客戶原始問題',{rows:3}),A('background','背景',{rows:3}),S('service','使用的服務',svcOpts,{svc:1}),A('process','過程',{rows:3}),A('result','結果',{rows:3}),A('feedback','客戶回饋',{rows:3}),A('topics','可以延伸的內容題目',{rows:3})]},
+ topics:{label:'內容選題',title:'title',sum:['goal','reason','message'],typeKey:'type',statusKey:'status',fields:[T('title','標題',{req:1}),S('type','選題類型',TOPIC_TYPES),T('goal','目標'),T('audience','目標客群'),A('reason','推薦理由',{rows:3}),S('story','使用的故事',storyOpts),A('angle','內容切角',{rows:3}),A('message','核心訊息',{rows:3}),S('status','狀態',TOPIC_STATUS)]},
+ scripts:{label:'短影音文案',title:'title',sum:['hook','full'],statusKey:'status',fields:[T('title','標題',{req:1}),T('goal','目標'),S('status','狀態',SCRIPT_STATUS),A('hook','開頭鉤子',{rows:2}),A('problem','問題',{rows:3}),A('story','故事',{rows:4}),A('twist','轉折',{rows:3}),A('body','核心內容',{rows:4}),A('solution','解決方式',{rows:3}),A('ending','結尾',{rows:2}),A('cta','CTA',{rows:2}),A('full','完整口播文案',{rows:10})]},
+ frameworks:{label:'文案架構',title:'name',sum:['opening','value'],fields:[T('name','架構名稱',{req:1}),A('opening','開頭方式',{rows:2}),A('problem','問題',{rows:2}),A('emotion','情緒',{rows:2}),A('story','故事',{rows:2}),A('twist','轉折',{rows:2}),A('value','價值內容',{rows:3}),A('cta','行動呼籲',{rows:2}),A('scenario','適用情境',{rows:3})]},
+ teardowns:{label:'影片拆解',title:'source',sum:['hook','rewritten'],fields:[T('source','原始影片或來源',{req:1,ph:'影片連結、帳號或自訂名稱'}),A('content','原始內容（逐字稿／文案）',{rows:8}),A('hook','開頭鉤子',{rows:2}),A('structure','內容架構',{rows:3}),A('storyWay','故事方式',{rows:2}),A('emotion','情緒設計',{rows:2}),A('twist','轉折方式',{rows:2}),A('cta','CTA',{rows:2}),A('borrow','可借鑑元素',{rows:3}),A('rewritten','轉換成自己版本後的文案',{rows:8})]},
+ ctas:{label:'CTA',title:'text',sum:['keyword','action','scenario'],fields:[T('text','CTA 文字',{req:1}),T('keyword','留言關鍵字'),A('action','希望使用者執行的動作',{rows:2}),S('service','對應服務',svcOpts,{svc:1}),A('scenario','使用情境',{rows:3})]},
+ funnels:{label:'內容漏斗',title:'entry',sum:[],chain:['entry','interaction','keyword','dm','next','service','goal'],fields:[T('entry','內容入口',{req:1,ph:'例如：某支短影音／某個主題'}),A('interaction','互動方式',{rows:2}),T('keyword','留言關鍵字'),A('dm','私訊方向',{rows:3}),A('next','下一步行動',{rows:2}),S('service','對應服務',svcOpts,{svc:1}),A('goal','轉換目標',{rows:2})]},
+ assets:{label:'內容資產',title:'title',sum:['content'],typeKey:'type',statusKey:'status',fields:[S('type','內容類型',ASSET_TYPES),T('title','標題',{req:1}),A('content','內容',{rows:7}),S('status','狀態',SCRIPT_STATUS),T('project','所屬專案'),T('tags','標籤',{ph:'用逗號分隔'})]}
+};
+const CHAIN_LABEL={entry:'內容入口',interaction:'互動方式',keyword:'留言關鍵字',dm:'私訊方向',next:'下一步行動',service:'對應服務',goal:'轉換目標'};
+const SHOOT=[['people','出鏡人數'],['who','出鏡人物'],['delivery','口播方式'],['shots','鏡位'],['scene','拍攝場景'],['cuts','鏡頭切換'],['broll','B-roll'],['subtitles','字幕建議'],['focus','畫面重點'],['cta','CTA']];
+const SECTIONS=['hook','problem','story','twist','body','solution','ending','cta'];
+const INTERVIEW=[
+ {q:'這個故事想用一句話怎麼稱呼？',k:'title'},{q:'這件事發生在什麼時候？',k:'when'},{q:'故事裡有哪些人？他們和你是什麼關係？',k:'people'},
+ {q:'當時的背景是什麼？你處在什麼狀態？',k:'background'},{q:'你遇到了什麼困難或衝突？',k:'conflict'},{q:'當時你心裡最真實的感受是什麼？',k:'content'},
+ {q:'你做了什麼決定或行動？',k:'content'},{q:'過程中出現了什麼轉折？',k:'twist'},{q:'最後的結果是什麼？',k:'result'},
+ {q:'這件事讓你學到什麼？',k:'insight'},{q:'有沒有一句話可以濃縮這個體悟？',k:'content'},{q:'你的目標客群，是否也有類似的經歷或卡關？',k:'topics'},
+ {q:'這個故事可以延伸成哪些內容主題？',k:'topics'},{q:'想替這個故事加哪些標籤？（用逗號分隔）',k:'tags'}
+];
+
+function fieldHTML(f,val,p){
+  const id=p+f.k,v=val==null?'':val;let inner;
+  if(f.t==='area')inner='<textarea id="'+id+'" class="inp" rows="'+(f.rows||4)+'" placeholder="'+esc(f.ph||'')+'">'+esc(v)+'</textarea>';
+  else if(f.t==='sel'){let o=(typeof f.opts==='function'?f.opts():f.opts).map(x=>typeof x==='object'?x:{v:x,l:x});if(v&&!o.some(x=>x.v===v))o.push({v:v,l:f.svc?svcShort(v):v});inner='<select id="'+id+'" class="inp">'+o.map(x=>'<option value="'+esc(x.v)+'"'+(x.v===v?' selected':'')+'>'+esc(x.l||'（不指定）')+'</option>').join('')+'</select>'}
+  else inner='<input id="'+id+'" class="inp" type="text" value="'+esc(v)+'" placeholder="'+esc(f.ph||'')+'" autocomplete="off">';
+  return '<div class="fld"><label for="'+id+'">'+esc(f.l)+(f.req?'<span class="req">必填</span>':'')+'</label>'+inner+'</div>';
+}
+function readFields(fields,p,root){const o={};fields.forEach(f=>{const el=$('#'+p+f.k,root);o[f.k]=el?el.value.trim():''});return o}
+function defaults(ent){const o={};ENT[ent].fields.forEach(f=>{o[f.k]='';if(f.t==='sel'){const op=typeof f.opts==='function'?f.opts():f.opts;const x0=op[0],v0=x0&&typeof x0==='object'?x0.v:x0;if(v0)o[f.k]=v0}});if(ent==='assets'&&cur())o.project=cur().name;return o}
+
+/* ============ Modal / Dialog ============ */
+function modal(o){
+  closeModal(true);
+  const root=$('#modal-root');
+  root.innerHTML='<div class="scrim" data-act="closeModal"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="'+esc(o.title)+'"><div class="sheet-h"><h3>'+esc(o.title)+'</h3><button class="icon-btn" data-act="closeModal" aria-label="關閉">×</button></div><div class="sheet-b">'+o.body+'</div><div class="sheet-f"></div></div>';
+  const ft=$('.sheet-f',root);
+  (o.buttons||[]).forEach(b=>{const x=document.createElement('button');x.type='button';x.className='btn '+(b.cls||'');x.textContent=b.label;x.addEventListener('click',()=>b.onClick(x));ft.appendChild(x)});
+  root.classList.add('open');document.body.classList.add('noscroll');
+  if(o.onMount)o.onMount(root);
+}
+function closeModal(silent){
+  const root=$('#modal-root');root.classList.remove('open');root.innerHTML='';document.body.classList.remove('noscroll');
+  if(UI.confirmRes){const r=UI.confirmRes;UI.confirmRes=null;if(!silent)r(false);else r(false)}
+}
+function confirmDialog(msg,okLabel){
+  return new Promise(res=>{
+    modal({title:'請確認',body:'<p class="pre">'+esc(msg)+'</p>',buttons:[{label:'取消',onClick:()=>closeModal()},{label:okLabel||'確定',cls:'gold',onClick:()=>{UI.confirmRes=null;closeModal(true);res(true)}}]});
+    UI.confirmRes=res;
+  });
+}
+function info(title,msg){modal({title:title,body:'<p class="pre">'+esc(msg)+'</p>',buttons:[{label:'知道了',cls:'gold',onClick:()=>closeModal()}]})}
+
+/* ============ 清單：搜尋、篩選、排序 ============ */
+function itemText(ent,r){return ENT[ent].fields.map(f=>r[f.k]?f.l+'：'+r[f.k]:'').filter(Boolean).join('\n')}
+const SRC={direct:{icon:'✍️',label:'直接輸入'},interview:{icon:'🎤',label:'14題訪談'}};
+function toItem(ent,r){
+  const c=ENT[ent];
+  const F=k=>c.fields.find(f=>f.k===k)||{};
+  const fv=(k,v)=>F(k).svc?svcShort(v):v;
+  let title=r[c.title]||'';
+  if(!title&&ent==='teardowns')title=short(r.hook||r.content,24);
+  const types=c.typeKey==='tags'?String(r.tags||'').split(/[,，、\s]+/).filter(Boolean):(c.typeKey&&r[c.typeKey]?[r[c.typeKey]]:[]);
+  const skip={};skip[c.title]=1;if(c.typeKey)skip[c.typeKey]=1;if(c.statusKey)skip[c.statusKey]=1;
+  const secs=c.fields.filter(f=>!skip[f.k]&&r[f.k]).map(f=>({k:f.k,l:f.l,v:fv(f.k,r[f.k])}));
+  let list;
+  if(c.chain)list=c.chain.filter(k=>r[k]).map(k=>({k:k,l:CHAIN_LABEL[k],v:fv(k,r[k])}));
+  else list=(c.sum||[]).map(k=>secs.find(s=>s.k===k)).filter(Boolean);
+  const lim=c.chain?40:60;
+  const more=secs.length>list.length||list.some(s=>s.v.length>lim||s.v.indexOf('\n')>=0);
+  return{ent:ent,id:r.id,kind:c.label,title:title||'（未命名）',types:types,ftypes:types,status:c.statusKey?(r[c.statusKey]||''):'',date:r.updatedAt||r.createdAt,secs:secs,list:list,chain:!!c.chain,more:more,text:itemText(ent,r),sub:ent==='assets'?r.type:'',src:ent==='stories'?(r.source||''):'',demo:!!r.isDemo};
+}
+function itemsOf(ent){const c=cur();return c?c[ent].map(r=>toItem(ent,r)):[]}
+function allItems(){let a=[];Object.keys(ENT).forEach(k=>{itemsOf(k).forEach(i=>{i.ftypes=[i.kind];a.push(i)})});return a}
+
+function collectionView(vk,fn,opt){
+  VIEWS[vk]=fn;VIEWOPT[vk]=opt||{};
+  const f=UI.f[vk]||(UI.f[vk]={q:'',type:'',status:'',sort:'new'});
+  const items=fn();
+  const types=[...new Set(items.reduce((a,i)=>a.concat(i.ftypes),[]))].filter(Boolean);
+  const stats=[...new Set(items.map(i=>i.status))].filter(Boolean);
+  const sel=(name,label,arr,val)=>'<select class="inp" data-filter="'+name+'" data-vk="'+vk+'" aria-label="'+label+'"><option value="">'+label+'：全部</option>'+arr.map(x=>'<option value="'+esc(x)+'"'+(x===val?' selected':'')+'>'+esc(x)+'</option>').join('')+'</select>';
+  const sort='<select class="inp" data-filter="sort" data-vk="'+vk+'" aria-label="排序"><option value="new"'+(f.sort==='new'?' selected':'')+'>最新優先</option><option value="old"'+(f.sort==='old'?' selected':'')+'>最舊優先</option><option value="title"'+(f.sort==='title'?' selected':'')+'>依標題</option></select>';
+  const row=(types.length?sel('type',opt&&opt.typeLabel||'類型',types,f.type):'')+(stats.length?sel('status','狀態',stats,f.status):'')+sort;
+  return '<div class="filters"><input type="search" class="inp" placeholder="搜尋關鍵字" value="'+esc(f.q)+'" data-filter="q" data-vk="'+vk+'" aria-label="搜尋關鍵字"><div class="frow">'+row+'</div></div><div id="res-'+vk+'">'+resultsHTML(vk)+'</div>';
+}
+function resultsHTML(vk){
+  const all=VIEWS[vk]();const f=UI.f[vk];const q=f.q.toLowerCase();
+  let list=all.filter(i=>(!q||(i.title+'\n'+i.text).toLowerCase().indexOf(q)>=0)&&(!f.type||i.ftypes.indexOf(f.type)>=0)&&(!f.status||i.status===f.status));
+  if(f.sort==='title')list.sort((a,b)=>a.title.localeCompare(b.title,'zh-Hant'));
+  if(f.sort==='old')list.sort((a,b)=>new Date(a.date||0)-new Date(b.date||0));
+  if(f.sort==='new')list.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+  if(!list.length)return '<div class="empty">'+(all.length?'沒有符合條件的項目，請調整搜尋或篩選。':'還沒有資料。按上方按鈕新增第一筆。')+'</div>';
+  return list.map(i=>cardHTML(i,VIEWOPT[vk].showKind)).join('');
+}
+function cardHTML(it,showKind){
+  const key=it.ent+':'+it.id,open=!!UI.exp[key];
+  const att='data-ent="'+it.ent+'" data-id="'+esc(it.id)+'"';
+  let badges='';
+  if(showKind)badges+='<span class="badge gold">'+esc(it.kind)+'</span>';
+  if(it.sub)badges+='<span class="badge">'+esc(it.sub)+'</span>';
+  if(!showKind)it.types.forEach(t=>{const tp=it.ent==='topics';badges+='<span class="badge'+(tp?' gold':'')+'">'+esc(tp?t.replace(/選題$/,''):t)+'</span>'});
+  if(it.status)badges+='<span class="badge gold">'+esc(it.status)+'</span>';
+  if(it.date)badges+='<span class="badge">'+fdate(it.date)+'</span>';
+  if(it.demo)badges+='<span class="badge">示範資料</span>';
+  let meta='';
+  if(it.ent==='stories'&&it.src){const s=SRC[it.src]||{icon:'•',label:it.src};meta='<p class="meta">建立方式｜'+s.icon+' '+esc(s.label)+'</p>'}
+  let body;
+  if(it.chain)body='<ul class="chain">'+it.list.map(s=>'<li><small>'+esc(s.l)+'</small><span class="v">'+esc(open?s.v:short(s.v,40))+'</span></li>').join('')+'</ul>';
+  else if(open)body='<dl class="full">'+it.secs.map(s=>'<div class="sec"><dt>【'+esc(s.l)+'】</dt><dd>'+esc(s.v)+'</dd></div>').join('')+'</dl>';
+  else body=it.list.map(s=>'<p class="kv"><b>'+esc(s.l)+'</b><span>'+esc(s.v)+'</span></p>').join('');
+  const toggle=it.more?'<button class="btn sm ghost wide" data-act="toggleItem" '+att+' aria-expanded="'+open+'">'+(open?'收合':'查看全文')+'</button>':'';
+  let extra='';
+  if(it.ent==='topics')extra='<button class="btn sm gold" data-act="topicToScript" data-id="'+esc(it.id)+'">製作文案</button>';
+  if(it.ent==='scripts')extra='<button class="btn sm gold" data-act="edit" '+att+'>開啟編輯</button>';
+  const edit=it.ent==='scripts'?'':'<button class="btn sm" data-act="edit" '+att+'>編輯</button>';
+  return '<article class="card item" data-card="'+esc(key)+'" data-sk="'+(showKind?1:0)+'"><h4>'+esc(it.title)+'</h4><div class="badges">'+badges+'</div>'+meta+body+'<div class="acts">'+toggle+extra+edit+'<button class="btn sm" data-act="copyItem" '+att+'>複製</button><button class="btn sm" data-act="dupItem" '+att+'>副本</button><button class="btn sm danger" data-act="delItem" '+att+'>刪除</button></div></article>';
+}
+
+function openForm(ent,id,prefill,onSaved){
+  const c=cur(),cfg=ENT[ent];if(!c)return;
+  const rec=id?c[ent].find(x=>x.id===id):null;
+  const vals=rec||prefill||defaults(ent);
+  modal({title:(rec?'編輯':'新增')+cfg.label,body:cfg.fields.map(f=>fieldHTML(f,vals[f.k],'f_')).join(''),buttons:[
+    {label:'取消',onClick:()=>closeModal()},
+    {label:'保存',cls:'gold',onClick:()=>{
+      const root=$('#modal-root');const v=readFields(cfg.fields,'f_',root);
+      const miss=cfg.fields.find(f=>f.req&&!v[f.k]);
+      if(miss){toast('請填寫「'+miss.l+'」');const el=$('#f_'+miss.k,root);if(el)el.focus();return}
+      if(rec){Object.assign(rec,v,{updatedAt:iso()})}else{c[ent].push(Object.assign({id:uid(),createdAt:iso()},ent==='scripts'?{shoot:{},topicId:''}:{},ent==='stories'?{source:'direct'}:{},v))}
+      persist();closeModal(true);toast('已保存');if(onSaved)onSaved();render();
+    }}]});
+}
+function findRec(t){const c=cur();return c?c[t.dataset.ent].find(x=>x.id===t.dataset.id):null}
+
+/* ============ 品牌資料給 AI 的上下文 ============ */
+/* 示範／測試資料：isDemo 或標題含「測試」的資料，一律不給 AI 當成真實內容或真實案例 */
+const isTest=x=>!!(x&&(x.isDemo||/測試|\btest\b/i.test(String(x.title||x.name||x.text||x.entry||''))));
+const real=(c,k)=>c[k].filter(x=>!isTest(x));
+function brandContext(c){
+  const L=[];const add=(t,fs,o)=>{const a=fs.filter(f=>o[f.k]).map(f=>f.l+'：'+o[f.k]);if(a.length)L.push('【'+t+'】\n'+a.join('\n'))};
+  add('品牌記憶',BRAND,c.brand);add('人設定位',PERSONA,c.persona);
+  const st=real(c,'stories'),sv=real(c,'services'),cs=real(c,'cases'),ct=real(c,'ctas'),tp=real(c,'topics'),sc=real(c,'scripts'),fn=real(c,'funnels');
+  if(st.length)L.push('【品牌故事】\n'+st.slice(0,8).map(s=>'- '+s.title+'：'+short(s.content||s.background,120)+(s.twist?'（轉折：'+short(s.twist,50)+'）':'')).join('\n'));
+  if(sv.length)L.push('【服務與產品】\n'+sv.slice(0,6).map(s=>'- '+svcShort(s.name)+(s.price?'（'+short(s.price,30)+'）':'')+'：'+short(s.solves||s.intro,80)).join('\n'));
+  L.push(cs.length?'【客戶案例（皆為真實案例）】\n'+cs.slice(0,5).map(s=>'- '+s.title+'：'+short(s.problem,60)+' → '+short(s.result,60)).join('\n'):'【客戶案例】目前沒有可引用的真實案例，禁止自行編造或套用測試資料。');
+  if(ct.length)L.push('【CTA】\n'+ct.slice(0,5).map(s=>'- '+s.text+(s.keyword?'（關鍵字：'+s.keyword+'）':'')).join('\n'));
+  if(tp.length)L.push('【內容選題】\n'+tp.slice(-8).map(s=>'- '+s.title+(s.type?'（'+s.type+'）':'')).join('\n'));
+  if(sc.length)L.push('【短影音文案】\n'+sc.slice(-5).map(s=>'- '+s.title+(s.hook?'｜開頭：'+short(s.hook,40):'')).join('\n'));
+  if(fn.length)L.push('【內容漏斗】\n'+fn.slice(-4).map(s=>'- '+s.entry+(s.keyword?' → 留言「'+s.keyword+'」':'')+(s.service?' → '+svcShort(s.service):'')).join('\n'));
+  return L.join('\n\n')||'（此業主尚未填寫任何品牌資料）';
+}
+function relatedRefs(c){
+  const r=[];if(Object.values(c.brand).some(Boolean))r.push('品牌記憶');if(Object.values(c.persona).some(Boolean))r.push('人設定位');
+  [['stories','品牌故事'],['services','服務'],['cases','客戶案例'],['ctas','CTA'],['topics','過往選題'],['scripts','過往文案'],['funnels','內容漏斗']].forEach(p=>{const n=real(c,p[0]).length;if(n)r.push(p[1]+' '+n+' 筆')});
+  return r;
+}
+
+/* ============ 雲端同步（選用） ============
+   資料仍以這台裝置的 localStorage 為主。填入後端網址與同步密碼後：
+   - 修改會自動上傳到你自己的 Cloudflare 後端（每次上傳雲端都保留一個版本）
+   - 回到頁面時會下載其他裝置的更新
+   - 兩邊同時改過時，不會自動覆蓋，會讓你選
+   AI 也會改走同一個後端，API Key 不放在網頁。 */
+function syncDefaults(){return {url:'',token:'',auto:true,rev:0,sig:'',dirty:false,last:'',state:'ok',err:'',busy:false,again:false,applying:false,pending:null,cloud:null,timer:null,poll:null}}
+function loadSync(){
+  const d=syncDefaults();
+  try{const s=JSON.parse(localStorage.getItem(APP.K.sync)||'{}');d.url=s.url||'';d.token=s.token||'';d.auto=s.auto!==false;d.rev=Number(s.rev)||0;d.sig=s.sig||'';d.dirty=!!s.dirty;d.last=s.last||''}catch(e){}
+  return d;
+}
+function saveSync(){try{localStorage.setItem(APP.K.sync,JSON.stringify({url:SYNC.url,token:SYNC.token,auto:SYNC.auto,rev:SYNC.rev,sig:SYNC.sig,dirty:SYNC.dirty,last:SYNC.last}))}catch(e){}}
+const backendOn=()=>!!(SYNC.url&&SYNC.token);
+const sigOf=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return s.length+':'+(h>>>0).toString(36)};
+const clientsSig=()=>sigOf(JSON.stringify(DB.clients));
+const timeOf=s=>{const d=new Date(s);return isNaN(d)?'':pad(d.getHours())+':'+pad(d.getMinutes())};
+const SAFE_PAGES=['dashboard','clients','stories','services','cases','topics','frameworks','funnels','ctas','assets','studio'];
+
+async function cloudFetch(path,o){
+  o=o||{};
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),o.timeout||30000);
+  try{
+    const headers={};if(!o.noAuth)headers.Authorization='Bearer '+SYNC.token;if(o.body)headers['content-type']='application/json';
+    const res=await fetch(SYNC.url.replace(/\/+$/,'')+path,{method:o.method||'GET',signal:ctl.signal,headers:headers,body:o.body,cache:'no-store'});
+    let j=null;try{j=await res.json()}catch(e){}
+    return{ok:res.ok,status:res.status,json:j};
+  }catch(e){return{ok:false,status:0,net:true,error:e.name==='AbortError'?'連線逾時':'無法連到雲端後端'}}
+  finally{clearTimeout(to)}
+}
+const cloudErr=r=>r.net?r.error:(r.status===401?'同步密碼不正確':r.status===403?'後端拒絕了這個網頁來源（請檢查後端的 ALLOWED_ORIGINS）':(r.json&&r.json.error&&r.json.error.message)||('後端回應 HTTP '+r.status));
+
+function syncStatusText(){
+  if(!backendOn())return '尚未啟用';
+  if(SYNC.state==='busy')return '同步中…';
+  if(SYNC.state==='err')return '同步失敗：'+SYNC.err;
+  if(SYNC.state==='conflict')return '雲端和這台的資料不一樣，等你選擇要用哪一份';
+  if(SYNC.state==='offline')return '目前連不上雲端，修改先存在這台，連線後會自動補上傳';
+  if(SYNC.pending)return '雲端有更新，離開編輯頁後會自動套用';
+  if(SYNC.dirty)return SYNC.auto?'有尚未上傳的修改，稍後自動上傳':'有尚未上傳的修改，請按「立即同步」';
+  return '已同步'+(SYNC.last?'（最近一次 '+fdate(SYNC.last)+' '+timeOf(SYNC.last)+'）':'');
+}
+function updateSyncDot(){
+  const d=$('#syncdot');if(!d)return;
+  if(!backendOn()){d.classList.add('hide');return}
+  d.classList.remove('hide','ok','busy','warn','err');
+  d.classList.add(SYNC.state==='busy'?'busy':SYNC.state==='err'?'err':(SYNC.state==='offline'||SYNC.state==='conflict'||SYNC.dirty||SYNC.pending)?'warn':'ok');
+  const t='雲端同步：'+syncStatusText();d.setAttribute('aria-label',t);d.title=t;
+}
+function setSyncState(state,err){
+  SYNC.state=state;SYNC.err=err||'';updateSyncDot();
+  const el=$('#syncstat');if(el)el.textContent=syncStatusText();
+}
+function backupLocal(){try{localStorage.setItem(APP.K.prev,JSON.stringify({ts:iso(),data:DB}))}catch(e){}}
+
+function syncAfterPersist(){
+  if(!backendOn()||SYNC.applying)return;
+  const dirty=clientsSig()!==SYNC.sig;
+  if(dirty!==SYNC.dirty){SYNC.dirty=dirty;saveSync()}
+  updateSyncDot();
+  if(dirty&&SYNC.auto&&SYNC.state!=='conflict')schedulePush();
+}
+function schedulePush(){clearTimeout(SYNC.timer);SYNC.timer=setTimeout(()=>{pushNow()},1500)}
+
+async function pushNow(force){
+  if(!backendOn())return false;
+  if(SYNC.busy){SYNC.again=true;return false}
+  if(SYNC.state==='conflict'&&!force)return false;
+  if(!SYNC.dirty&&!force)return true;
+  SYNC.busy=true;setSyncState('busy');
+  const mySig=clientsSig();
+  const r=await cloudFetch('/api/data',{method:'PUT',timeout:60000,body:JSON.stringify({baseRev:SYNC.rev,data:{dataVersion:APP.V,clients:DB.clients}})});
+  SYNC.busy=false;
+  if(r.ok&&r.json&&Number.isInteger(r.json.rev)){
+    SYNC.rev=r.json.rev;SYNC.sig=mySig;SYNC.last=iso();SYNC.dirty=clientsSig()!==SYNC.sig;saveSync();
+    setSyncState('ok');
+    if(SYNC.dirty&&SYNC.auto)schedulePush();
+    SYNC.again=false;
+    return true;
+  }
+  if(r.status===409){await onConflict();return false}
+  if(r.net){setSyncState('offline');return false}
+  setSyncState('err',cloudErr(r));return false;
+}
+
+async function onConflict(){
+  const r=await cloudFetch('/api/data');
+  if(!r.ok||!r.json||!r.json.data){setSyncState(r.net?'offline':'err',cloudErr(r));return}
+  // 如果雲端內容其實和這台一樣（例如上次上傳成功但回應遺失），直接對齊版本號，不打擾使用者
+  if(sigOf(JSON.stringify(r.json.data.clients||[]))===clientsSig()){SYNC.rev=r.json.rev;SYNC.sig=clientsSig();SYNC.dirty=false;SYNC.last=iso();saveSync();setSyncState('ok');return}
+  SYNC.cloud={rev:r.json.rev,data:r.json.data,updatedAt:r.json.updatedAt};
+  setSyncState('conflict');showConflict();
+}
+
+async function pullNow(o){
+  o=o||{};
+  if(!backendOn()||SYNC.busy)return null;
+  const r=await cloudFetch('/api/data?since='+SYNC.rev);
+  if(!r.ok||!r.json){if(r.net)setSyncState('offline');else setSyncState('err',cloudErr(r));return r}
+  if(SYNC.state==='conflict')return r;
+  const cloud=r.json;
+  if(cloud.unchanged){setSyncState('ok');return r}
+  if(cloud.rev===0){ // 雲端是空的（例如剛重建資料庫）：把這台的資料上傳
+    setSyncState('ok');
+    if(DB.clients.length){SYNC.rev=0;SYNC.dirty=true;saveSync();await pushNow(true)}
+    return r;
+  }
+  if(cloud.rev>SYNC.rev){
+    if(SYNC.dirty){SYNC.cloud={rev:cloud.rev,data:cloud.data,updatedAt:cloud.updatedAt};setSyncState('conflict');showConflict();return r}
+    SYNC.pending={rev:cloud.rev,data:cloud.data};
+    setSyncState('ok');
+    tryApplyPending(false);
+    return r;
+  }
+  return r;
+}
+async function syncTick(){
+  if(!backendOn()||!SYNC.auto)return;
+  await pullNow();
+  if(SYNC.dirty&&SYNC.state!=='conflict'&&!SYNC.busy)await pushNow();
+}
+
+function canApplyNow(){
+  if($('#modal-root').classList.contains('open'))return false;
+  const a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return false;
+  return SAFE_PAGES.indexOf(route().page)>=0;
+}
+function tryApplyPending(resetScroll){
+  if(!SYNC.pending)return false;
+  if(!canApplyNow()){updateSyncDot();return false}
+  const p=SYNC.pending;SYNC.pending=null;
+  return applyCloud(p.data,p.rev,true,resetScroll);
+}
+function applyCloud(data,rev,quiet,resetScroll){
+  if(!data||!Array.isArray(data.clients))return false;
+  if(Number(data.dataVersion||1)>APP.V){SYNC.pending=null;setSyncState('err','雲端資料來自較新版本的程式，請重新整理網頁取得最新版');return false}
+  backupLocal();
+  SYNC.applying=true;
+  try{DB=migrate({dataVersion:data.dataVersion||1,currentClientId:DB.currentClientId,clients:data.clients});persist()}finally{SYNC.applying=false}
+  SYNC.rev=rev;SYNC.sig=clientsSig();SYNC.dirty=false;SYNC.last=iso();SYNC.cloud=null;SYNC.pending=null;saveSync();
+  setSyncState('ok');
+  render(!resetScroll);
+  toast(quiet?'已同步雲端最新資料':'已套用雲端資料');
+  return true;
+}
+
+function showConflict(){
+  const c=SYNC.cloud;if(!c)return;
+  const names=((c.data&&c.data.clients)||[]).map(x=>x.name).join('、')||'（無）';
+  const first=!!c.first;
+  modal({title:first?'雲端已經有資料':'雲端和這台的資料不一樣',body:'<p>'+(first?'雲端已經有資料，這台也有資料。':'雲端有另一台裝置存的資料（'+esc(fdate(c.updatedAt)+' '+timeOf(c.updatedAt))+'），而這台也有還沒上傳的修改。')+'兩邊不能自動合併，請選一個：</p><div class="stack"><button class="btn" data-act="conflictCloud">用雲端的資料<small>這台目前的資料會被取代（會先備份在這台，可下載）</small></button><button class="btn" data-act="conflictLocal">用這台的資料覆蓋雲端<small>雲端現在這一版仍留在歷史版本，可以還原</small></button></div><p class="small muted">雲端的業主：'+esc(names)+'</p>',buttons:[{label:'先不處理',onClick:()=>closeModal()}]});
+}
+
+async function linkSync(){
+  const r=await cloudFetch('/api/data');
+  if(!r.ok||!r.json)return{ok:false,msg:cloudErr(r)};
+  const cloud=r.json,hasLocal=DB.clients.length>0;
+  if(cloud.rev===0){
+    SYNC.rev=0;SYNC.sig='';SYNC.dirty=hasLocal;SYNC.cloud=null;saveSync();
+    if(hasLocal){const ok=await pushNow(true);return{ok:ok,msg:ok?'雲端還是空的，已把這台的資料上傳（'+DB.clients.length+' 個業主）。之後的修改會自動同步。':'上傳沒有成功，請稍後按「立即同步」。'}}
+    SYNC.sig=clientsSig();saveSync();setSyncState('ok');
+    return{ok:true,msg:'雲端和這台都還沒有資料。之後的修改會自動同步。'};
+  }
+  if(!hasLocal){applyCloud(cloud.data,cloud.rev,true);return{ok:true,msg:'已從雲端下載資料（'+(cloud.data.clients||[]).length+' 個業主）。'}}
+  if(sigOf(JSON.stringify(cloud.data.clients||[]))===clientsSig()){SYNC.rev=cloud.rev;SYNC.sig=clientsSig();SYNC.dirty=false;SYNC.last=iso();SYNC.cloud=null;saveSync();setSyncState('ok');return{ok:true,msg:'雲端和這台的資料相同，已連線。'}}
+  SYNC.cloud={rev:cloud.rev,data:cloud.data,updatedAt:cloud.updatedAt,first:true};SYNC.dirty=true;saveSync();
+  setSyncState('conflict');showConflict();
+  return{ok:true,pendingChoice:true};
+}
+
+function syncStart(){
+  if(!backendOn())return;
+  clearInterval(SYNC.poll);
+  SYNC.poll=setInterval(()=>{if(document.visibilityState==='visible'){tryApplyPending(false);syncTick()}},45000);
+  syncTick();
+}
+document.addEventListener('visibilitychange',()=>{
+  if(!backendOn())return;
+  if(document.visibilityState==='visible')syncTick();
+  else if(SYNC.dirty&&SYNC.auto&&SYNC.state!=='conflict'){clearTimeout(SYNC.timer);pushNow()}
+});
+window.addEventListener('online',()=>{syncTick()});
+
+async function callBackendAI(o){
+  const r=await cloudFetch('/api/ai',{method:'POST',timeout:90000,body:JSON.stringify({system:o.system,prompt:o.prompt,history:o.history||[]})});
+  if(r.ok&&r.json&&r.json.text)return{demo:false,text:r.json.text};
+  if(r.net)return{demo:true,error:'無法連到雲端後端。請檢查網路，或到設定頁確認雲端同步是否正常。'};
+  return{demo:true,error:'雲端 AI：'+cloudErr(r)};
+}
+
+function syncCardHTML(){
+  const on=backendOn(),hasPrev=!!localStorage.getItem(APP.K.prev);
+  return '<div class="card hi"><h3>雲端同步（電腦與手機共用資料）</h3><p class="muted">狀態：<span id="syncstat">'+esc(syncStatusText())+'</span></p>'
+   +'<div class="fld"><label for="sync_url">後端網址</label><input id="sync_url" class="inp" type="url" inputmode="url" autocomplete="off" placeholder="https://brand-studio-sync.你的帳號.workers.dev" value="'+esc(SYNC.url)+'"></div>'
+   +'<div class="fld"><label for="sync_token">同步密碼</label><input id="sync_token" class="inp" type="password" autocomplete="new-password" placeholder="'+(SYNC.token?'已儲存（為安全不顯示），留空表示不變更':'你在後端設定的 APP_TOKEN')+'"></div>'
+   +'<div class="fld"><label for="sync_auto">自動同步</label><select id="sync_auto" class="inp"><option value="1"'+(SYNC.auto?' selected':'')+'>開啟：修改後自動上傳，回到頁面時自動下載</option><option value="0"'+(SYNC.auto?'':' selected')+'>關閉：只在按「立即同步」時同步</option></select></div>'
+   +'<p class="small muted">同步後，你的品牌資料會存在你自己的 Cloudflare 帳號裡，只有知道同步密碼的人讀得到。AI 也會改走這個後端，API Key 不會放在網頁裡。</p>'
+   +'<div class="acts"><button class="btn gold" data-act="saveSync">保存並連線</button>'+(on?'<button class="btn" data-act="syncNow">立即同步</button><button class="btn" data-act="testBackendAI">測試雲端 AI</button><button class="btn" data-act="syncHistory">雲端歷史版本</button>':'')+(hasPrev?'<button class="btn" data-act="downloadPrev">下載這台被取代前的備份</button>':'')+(on?'<button class="btn danger" data-act="syncOff">停用同步</button>':'')+'</div></div>';
+}
+
+/* ============ AI 呼叫層（可替換） ============
+   callAI() 是唯一對外連線的地方。
+   - 沒設定 Endpoint / Model / API Key → 回傳 {demo:true}，各功能改用內建示範結果。
+   - Endpoint 含 anthropic.com → 使用 Anthropic Messages 格式。
+   - 其他 → 使用 OpenAI 相容的 chat/completions 格式。
+   要換成自己的後端，只需要改這個函式。 */
+async function callAI(o){
+  if(backendOn())return callBackendAI(o);
+  if(!SET.endpoint||!SET.model||!SET.key)return{demo:true};
+  const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),90000);let stage=0;
+  try{
+    const isA=/anthropic\.com/i.test(SET.endpoint);
+    const isResponses=/\/responses\/?$/i.test(SET.endpoint);
+    const msgs=(o.history||[]).concat([{role:'user',content:o.prompt}]);
+    let res;
+    if(isA)res=await fetch(SET.endpoint,{method:'POST',signal:ctl.signal,headers:{'content-type':'application/json','x-api-key':SET.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:SET.model,max_tokens:4096,system:o.system,messages:msgs})});
+    else if(isResponses)res=await fetch(SET.endpoint,{method:'POST',signal:ctl.signal,headers:{'content-type':'application/json','Authorization':'Bearer '+SET.key},body:JSON.stringify({model:SET.model,input:[{role:'system',content:o.system}].concat(msgs),max_output_tokens:4096})});
+    else res=await fetch(SET.endpoint,{method:'POST',signal:ctl.signal,headers:{'content-type':'application/json','Authorization':'Bearer '+SET.key},body:JSON.stringify({model:SET.model,messages:[{role:'system',content:o.system}].concat(msgs)})});
+    stage=1;
+    if(!res.ok){
+      let detail='',raw='';
+      try{raw=await res.text();const payload=JSON.parse(raw);detail=payload&&payload.error&&(payload.error.message||payload.error.type||payload.error.code)||''}catch(e){detail=raw.trim()}
+      const status=res.status;
+      const reason=status===400?'請檢查 Model 名稱與請求格式':status===401?'API Key 無效或未正確授權':status===403?'帳號、專案或 API Key 權限不足':status===404?'Endpoint 網址或 Model 不存在':status===429?'用量、額度或請求頻率受限':status>=500?'AI 服務暫時發生問題':'請檢查 API 設定';
+      if(detail&&SET.key)detail=detail.split(SET.key).join('[已隱去 API Key]');
+      throw new Error('HTTP '+status+'：'+reason+(detail?'\n服務回覆：'+short(detail,260):''));
+    }
+    const j=await res.json();
+    const text=isA?(j.content||[]).map(x=>x.text||'').join(''):isResponses?((j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==='output_text'||x.text).map(x=>x.text||'').join('')||j.output_text||''):((j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||'');
+    if(!text)throw new Error('AI 回覆是空的');
+    return{demo:false,text:text};
+  }catch(e){
+    const netErr=stage===0&&e.name!=='AbortError'&&(e instanceof TypeError||/failed to fetch|networkerror|load failed/i.test(e.message||''));
+    const message=e.name==='AbortError'?'連線逾時（90 秒沒有收到回覆）':netErr?'瀏覽器無法連到 API（Failed to fetch）。':e.message||'連線失敗';
+    return{demo:true,error:message,net:netErr};
+  }
+  finally{clearTimeout(to)}
+}
+function sysPrompt(c){
+  return '你是「'+(c.brand.name||c.name)+'」的短影音內容顧問與文案夥伴。\n\n基本規則：\n1. 一律優先使用下方品牌資料，不要產出放諸四海皆準的通用內容。\n2. 使用繁體中文；說話語氣以品牌資料中的「說話語氣」「語氣風格」為準。\n3. 拍攝建議以「一個人用手機即可完成」為前提。\n4. 拆解他人內容時只借結構與手法，不得複製原文。\n\n口播文案規則：\n- 流程是「理解資料 → 重組 → 自然改寫」，不是把品牌資料欄位直接串接。\n- 不得直接複製資料庫欄位文字；不得把欄位名稱或提示語（例如「目標客群：」「內容切角」「從最低潮的一天開始講」）寫進口播。\n- 不得產生殘句，不得重複相同或相似的段落。\n- 不得捏造不存在的客戶案例、數字、成果或經歷；缺資料時寫成【請補充：…】。只有下方標示為真實的案例才能引用；示範或測試資料一律不可當成真實案例。\n- 不要每支影片都硬塞服務銷售 CTA；只有目標是獲客時才自然帶出，否則以自然收尾或互動邀請為主。\n- 寫成可以直接對鏡頭說的口語，保留自然停頓與語氣；不要像 AI 報告或顧問文章。\n- 不要過度玄學化，也不要每一段都重複使用同一組抽象詞（例如宇宙、頻率、顯化、能量提升）。\n\n'+(c.isDemo?'注意：此業主為示範資料，不是真實品牌。\n\n':'')+'品牌資料：\n'+brandContext(c);
+}
+function parseJSON(t){
+  t=String(t).replace(/```json|```/g,'');
+  const a=t.search(/[\[{]/);if(a<0)throw new Error('no json');
+  const open=t[a],close=open==='['?']':'}';
+  return JSON.parse(t.slice(a,t.lastIndexOf(close)+1));
+}
+async function aiJSON(c,prompt,demoFn){
+  const r=await callAI({system:sysPrompt(c),prompt:prompt+'\n\n只輸出 JSON，不要任何其他文字或說明。'});
+  if(r.demo){if(r.error)toast('AI 連線失敗（'+r.error+'），已改用示範結果',4000);return{data:demoFn(),demo:true}}
+  try{return{data:parseJSON(r.text),demo:false}}catch(e){toast('AI 回覆格式無法解析，已改用示範結果',4000);return{data:demoFn(),demo:true}}
+}
+
+/* ============ 內建示範產生器（沒有 API 時使用） ============
+   這些只是「示範結果」：只使用完整句子，不把欄位原文截斷後塞進標題或口播。 */
+const sentList=s=>String(s==null?'':s).replace(/\r/g,'').match(/[^。！？!?；;\n]+[。！？!?；;]?/g)||[];
+function sent(s,max){
+  const a=sentList(s).map(x=>x.trim()).filter(Boolean);let o='';
+  for(let i=0;i<a.length;i++){if((o+a[i]).length>max)break;o+=a[i]}
+  if(o)return o;
+  const b=String(s==null?'':s).split(/[，,、]/).map(x=>x.trim()).filter(Boolean);
+  return b[0]&&b[0].length<=max?b[0]:'';
+}
+const clause=(s,max)=>sent(s,max).replace(/[。！？!?；;，,、\s]+$/,'');
+function ctxVals(c){const b=c.brand,p=c.persona,st=real(c,'stories'),sv=real(c,'services'),cs=real(c,'cases'),ct=real(c,'ctas');return{name:b.name||c.name,aud:b.audience||p.audience||'',pain:p.pain||'',exp:b.expertise||p.expertise||b.job||'',tone:b.tone||p.tone||'',values:b.values||'',svc:sv[0],cs:cs[0],cta:ct[0],st:st,filled:!!(b.name||b.audience||p.pain||st.length)}}
+function composeFull(o){return SECTIONS.map(k=>o[k]).filter(Boolean).join('\n\n')}
+function demoTopics(c,type){
+  const v=ctxVals(c);
+  const pain=clause(v.pain,20),exp=clause(v.exp,14);
+  const audFull=sent(v.aud,80)||'（請先在品牌記憶填寫目標客群）';
+  const st=i=>v.st.length?v.st[i%v.st.length].title:'';
+  const kw=(v.cta&&v.cta.keyword)||'我想了解';
+  const why=t=>t+(v.filled?'':'（先補齊品牌記憶，建議會更貼近你）');
+  const mk=(title,reason,angle,message,goal,story)=>({title:title,type:'',reason:why(reason),audience:audFull,story:story||'',angle:angle,message:message,goal:goal});
+  const B={
+   '人設型選題':[
+    mk(exp?'我為什麼會走上「'+exp+'」這條路':'我為什麼會走上現在這條路','用真實轉折建立信任，也讓目標客群知道你懂他們','第一人稱，從最低潮或最關鍵的一天開始講','你不是一開始就專業，而是從真實經歷走到今天','建立信任',st(0)),
+    mk('我在工作裡絕對不妥協的一件事','把價值觀講成立場，幫你篩出對的人','先說一般人常見的做法，再說你選擇不一樣的做法','你的堅持就是你的差異化','建立信任'),
+    mk('從「'+(st(1)||'一次失敗的經驗')+'」我學到的事','失敗故事比成功故事更容易被記住','先講當下的狼狽，再講你怎麼轉過來','能說出失敗的人，更值得信任','建立信任',st(1)),
+    mk('客人最常問我的一個問題，我的真實答案','用你的視角回答常見問題，順便展現專業','一問一答，答案要有你的立場','專業不是知道很多，而是敢給明確答案','建立信任')],
+   '獲客型選題':[
+    mk(pain?'最常卡在「'+pain+'」，先檢查這三件事':'最常卡住的地方，先檢查這三件事','直接對準客戶痛點，看完會想找你','列出三個檢查點，最後一點留懸念','先看清問題，才能選對解法','獲取客戶'),
+    mk(v.svc?'「'+svcShort(v.svc.name)+'」適合誰？不適合誰？':'我的服務適合誰？不適合誰？','講清楚適合與不適合，反而提高信任與詢問品質','用「如果你是…就適合；如果你是…先不要」的對比','篩選客戶，讓來的人更精準','獲取客戶'),
+    mk(v.cs?'真實案例：'+clause(v.cs.title,22):'一位客戶從卡住到改變的過程',v.cs?'案例是最強的轉換內容':'案例是最強的轉換內容（目前沒有可引用的真實案例，請先到「客戶案例」補上，不要拿測試資料充數）','客戶原本的問題 → 做了什麼 → 結果','讓觀眾看見「像我這樣的人也能改變」','獲取客戶'),
+    mk(pain?'想解決「'+pain+'」？留言「'+kw+'」':'想知道第一步怎麼做？留言「'+kw+'」','直接把內容導向留言關鍵字與私訊流程','先給一個小方法，再邀請留言領取完整版','把互動變成名單','獲取客戶')],
+   '泛流量型選題':[
+    mk(exp?exp+'最常見的三個迷思':'大家最常有的三個迷思','迷思類題材容易被轉發，觸及最廣','每個迷思 10 秒，快速翻轉','先破除誤解，再留下你的觀點','擴大觸及'),
+    mk(exp?exp+'最常被誤會的一件事':'這個領域最常被誤會的一件事','用一個反直覺的觀點吸引停留','開頭先說「大家都以為…，其實…」','一個清楚的反直覺觀點','擴大觸及'),
+    mk('一個小測驗，看看你是不是也這樣','互動型小測驗，容易留言與分享','讓觀眾跟著做一個 5 秒的小動作','讓人想測、想分享給朋友','擴大觸及'),
+    mk('如果只能給你一個建議，我會說這句','金句型內容，好記、好轉發','只給一個建議，用一個生活畫面說明','把你的專業濃縮成一句話','擴大觸及')]
+  };
+  let list;
+  if(type==='綜合推薦'){list=[B['人設型選題'][0],B['獲客型選題'][0],B['泛流量型選題'][0],B['獲客型選題'][2]].map(x=>Object.assign({},x))}
+  else list=(B[type]||B['獲客型選題']).map(x=>Object.assign({},x));
+  list.forEach(x=>{x.type=type});
+  return list;
+}
+function demoScript(c,t){
+  const v=ctxVals(c);t=t||{};
+  const acq=/獲客|獲取客戶/.test((t.type||'')+(t.goal||''));
+  const pain=sent(v.pain,40).replace(/[。！？!?]+$/,'');
+  const st=(t.story&&v.st.find(s=>s.title===t.story))||v.st[0];
+  const o={};
+  o.hook=pain?'你是不是也常常這樣：'+pain+'？':'有一件事，我想跟你好好聊一聊。';
+  o.problem='今天這支影片，我想跟你聊'+(t.title?'「'+t.title+'」':'一個很多人都遇過的狀況')+'。';
+  const sc=st?sent(st.content||[st.background,st.conflict].filter(Boolean).join('，'),110):'';
+  o.story=sc||'【請補充：用 2–3 句說出你自己的真實經歷，當時發生了什麼、你怎麼想】';
+  const tw=st&&st.twist?sent(st.twist,60):'';
+  o.twist=tw&&o.story.indexOf(tw)<0?tw:'';
+  o.body=sent(t.message,90)||'【請補充：這支影片想讓觀眾帶走的一個重點】';
+  o.solution=(acq&&v.svc)?'如果你也正好卡在這裡，我平常會用「'+svcShort(v.svc.name)+'」陪大家一起整理。':'';
+  o.ending='先不用急著一次做很多，把這一件事看清楚就好。';
+  o.cta=acq?((v.cta&&v.cta.text)||'想聊聊你的狀況，可以留言或私訊我。'):'如果這支影片讓你有共鳴，可以留言告訴我。';
+  o.full=composeFull(o);return o;
+}
+function demoShoot(c,s){
+  const v=ctxVals(c),kw=v.cta&&v.cta.keyword;
+  const useKw=kw&&s&&String(s.full||'').indexOf(kw)>=0;
+  return{people:'1 人（本人出鏡）',who:v.name,delivery:'正對鏡頭口播，語速放慢，重點句前停一拍；念不順的句子先改成口語再拍',shots:'手機直拍 9:16，胸上特寫為主；開頭與結尾各補一個稍近的鏡頭',scene:'安靜、光線柔和的室內，窗邊側光，背景乾淨單色',cuts:'每 4–6 秒用放大 110% 或換角度切換一次；轉折句前後各切一次',broll:'桌面筆記、手寫重點、翻書、街景、手機畫面（都可以自己拍）',subtitles:'大字、每行不超過 12 個字、關鍵詞用金黃色強調',focus:'前三秒要看到你的臉，並用字幕打出核心問題',cta:useKw?'結尾看鏡頭微笑，手指向留言區，畫面顯示「留言 '+kw+'」':'結尾看鏡頭自然收尾，字幕打出一句互動邀請（例如：留言告訴我你的想法）'};
+}
+function demoTeardown(text){
+  const s=(String(text).replace(/\r/g,'').match(/[^。！？!?\n]+[。！？!?]?/g)||[]).map(x=>x.trim()).filter(Boolean);
+  const ctaRe=/留言|私訊|點擊|連結|報名|加入|追蹤|關注|預約|領取/;
+  const cta=s.slice().reverse().find(x=>ctaRe.test(x))||'';
+  const twist=s.find(x=>/但是|可是|沒想到|後來|直到|結果|其實|然而/.test(x))||'';
+  const emo=[['焦慮|擔心|害怕|壓力','焦慮／擔心'],['後悔|遺憾|可惜','後悔／遺憾'],['開心|成功|終於|驚喜','喜悅／成就'],['生氣|崩潰|受不了','憤怒／崩潰']].filter(p=>new RegExp(p[0]).test(text)).map(p=>p[1]);
+  const story=/我(曾|以前|當時|那時|在|有一次)/.test(text)?'第一人稱經歷':(/客戶|學員|個案|朋友/.test(text)?'第三人稱案例':'以觀點與論述為主，幾乎沒有故事');
+  return{hook:s[0]||'',structure:'共 '+s.length+' 句：開頭'+(/[？?]/.test(s[0]||'')?'用提問':'用陳述')+'切入'+(twist?' → 中段出現轉折':'')+(cta?' → 結尾導向行動':' → 結尾沒有明確行動呼籲'),storyWay:story,emotion:emo.length?emo.join('、'):'情緒起伏不明顯，以資訊為主',twist:twist,cta:cta,borrow:'可借鑑：①開頭的切入方式 ②段落的先後順序 ③結尾把互動導向行動。只借結構，不借原句。'};
+}
+function demoRewrite(c,td){
+  const a=td||{},shape=(a.structure||'')+' '+(a.storyWay||''),hasCTA=!!String(a.cta||'').trim();
+  const v=ctxVals(c),st=v.st[0];
+  const base=demoScript(c,{type:hasCTA?'獲客':'',goal:hasCTA?'依參考結構保留自然的行動邀請':''});
+  if(/提問|問題/.test(shape)&&v.pain)base.hook='你是不是也遇過：'+sent(v.pain,40).replace(/[。！？!?]+$/,'')+'？';
+  else if(/陳述|觀點/.test(shape)&&v.exp)base.hook='我在'+clause(v.exp,24)+'的工作裡，最常看到一件事。';
+  if(/第一人稱|個人經歷/.test(a.storyWay||'')&&st)base.story=sent(st.content||[st.background,st.conflict].filter(Boolean).join('，'),110)||base.story;
+  if(a.twist&&st&&st.twist)base.twist=sent(st.twist,60);
+  if(!hasCTA)base.cta='';
+  base.full=composeFull(base);
+  return base.full;
+}
+function demoChat(q,c){
+  const v=ctxVals(c),have=relatedRefs(c),b=c.brand,p=c.persona;
+  const line=(l,x)=>x?'・'+l+'：'+x:'';
+  const lines=a=>a.filter(Boolean).join('\n');
+  const none='目前這部分資料還是空的，請先補上，我才有東西可以整理。';
+  let tip;
+  if(/核心能力|核心競爭|專業|擅長|強項|優勢|定位|我是誰/.test(q)){
+    const L=lines([line('一句話定位',p.oneLine),line('身份',b.identity||p.identity),line('專業領域',b.expertise||p.expertise),line('個人特色',b.trait),line('差異化',b.diff||p.diff),line('可信任理由',p.trust)]);
+    tip=L?'依你目前的品牌記憶與人設，你的核心能力整理如下：\n'+L:none;
+  }
+  else if(/CTA|行動呼籲|留言關鍵字/i.test(q))tip='CTA 的檢查重點：\n① 動作只有一個（留言、私訊或點連結，擇一）\n② 看完內容後，這個動作是否是最自然的下一步\n③ 是否對應到你的某一項服務'+(v.svc?'（例如「'+svcShort(v.svc.name)+'」）':'')+'\n④ 不是每支影片都需要銷售型 CTA，信任型內容可以用互動邀請收尾';
+  else if(/故事/.test(q)&&/適合|拍|影片/.test(q))tip='判斷故事適不適合拍成影片：\n① 30 秒內能講完起因與轉折嗎\n② 有沒有一句讓人記住的體悟\n③ 目標客群看了會不會想到自己'+(v.st.length?'\n你目前有 '+v.st.length+' 則故事：'+v.st.slice(0,5).map(s=>'「'+s.title+'」').join('、')+'。可從轉折最明確的那則開始。':'');
+  else if(/不像我|像我|語氣|自然|口語|改寫/.test(q))tip='可以先檢查三件事：\n① 有沒有用你平常說話的詞（目前記錄的語氣：'+(v.tone?sent(v.tone,50)||v.tone:'尚未填寫，建議先補上')+'）\n② 有沒有一句只有你會說的話\n③ 念出來順不順，把書面語改成對一個人說話的口吻';
+  else if(/流量|獲客/.test(q))tip='流量型內容重在「很多人都有感」，獲客型內容重在「對的人想找你」。\n'+(v.pain?'如果題目直接點出「'+clause(v.pain,24)+'」這類痛點，並能自然帶到你的服務，偏獲客；':'如果題目直接點出目標客群的痛點，並能自然帶到你的服務，偏獲客；')+'如果是大眾迷思或金句，偏流量。';
+  else if(/服務|產品|價格|方案/.test(q))tip=real(c,'services').length?'你目前的服務與產品：\n'+real(c,'services').map(s=>'・'+svcShort(s.name)+(s.solves?'：'+sent(s.solves,40):'')).join('\n'):none;
+  else if(/客群|受眾|目標客戶|痛點/.test(q))tip=lines([line('目標客群',b.audience||p.audience),line('客戶痛點',p.pain)])||none;
+  else if(/案例/.test(q))tip=real(c,'cases').length?'你目前可引用的真實案例：\n'+real(c,'cases').map(s=>'・'+s.title).join('\n'):'目前沒有可引用的真實案例（示範與測試資料不計入）。請先到「客戶案例」補上。';
+  else if(/選題|題目|題材/.test(q))tip=real(c,'topics').length?'你最近的選題：\n'+real(c,'topics').slice(-6).map(s=>'・'+s.title+(s.type?'（'+s.type.replace(/選題$/,'')+'）':'')).join('\n'):'目前還沒有選題，可以到「選題建議」產生。';
+  else tip='示範模式只能依關鍵字回答，這個問題需要真正的 AI 才能判斷。\n\n我目前讀到的資料：\n'+(lines([line('品牌',b.name||c.name),line('一句話定位',p.oneLine),line('目標客群',b.audience||p.audience),v.st.length?'・品牌故事 '+v.st.length+' 則':'',real(c,'services').length?'・服務 '+real(c,'services').length+' 項':''])||'目前資料還是空的。');
+  return tip+'\n\n（示範回答：尚未設定 AI API，以上是依關鍵字與你的資料整理的內容，不是 AI 判斷。已讀取：'+(have.join('、')||'尚無，請先填寫品牌記憶')+'）';
+}
+
+/* ============ 頁面 ============ */
+const GROUPS=[
+ {t:'',items:[['dashboard','首頁'],['clients','業主專案']]},
+ {t:'品牌資料',items:[['brand','品牌記憶'],['persona','人設定位'],['stories','品牌故事'],['services','服務與產品'],['cases','客戶案例']]},
+ {t:'流量團隊',items:[['topics','選題建議'],['frameworks','文案架構'],['teardown','影片拆解'],['funnels','文案漏斗'],['ctas','CTA']]},
+ {t:'製作與管理',items:[['studio','短影音工作區'],['assets','內容資產管理'],['chat','AI顧問']]},
+ {t:'系統',items:[['settings','設定'],['data','資料匯出／匯入']]}
+];
+const NOCLIENT_OK=['dashboard','clients','settings','data'];
+const ICON={home:'<path d="M3 11l9-8 9 8v10a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1z"/>',topics:'<path d="M4 6h16M4 12h16M4 18h10"/>',studio:'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>',more:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'};
+
+function needClient(){return '<div class="empty">請先建立或選擇一個業主專案。<br><a class="btn gold" href="#/clients">前往業主專案</a></div>'}
+function entityPage(key,top){return(top||'')+'<div class="bar"><button class="btn gold" data-act="addEnt" data-ent="'+key+'">新增'+ENT[key].label+'</button></div>'+collectionView(key,()=>itemsOf(key))}
+
+function pageDashboard(){
+  const c=cur();
+  if(!c)return '<div class="card hi"><h2>歡迎使用短影音內容獲客工作台</h2><p class="muted">這個工具會先記住你的品牌、故事與服務，之後選題、文案、拍攝建議與 CTA 都會優先用這些資料，不用每次從零開始。</p><div class="bar"><button class="btn gold" data-act="addClient">建立第一個業主專案</button><button class="btn" data-act="seedDemo">載入示範資料看看</button></div></div>';
+  const total=BRAND.length+PERSONA.length,filled=BRAND.filter(f=>c.brand[f.k]).length+PERSONA.filter(f=>c.persona[f.k]).length,pct=Math.round(filled/total*100);
+  const saved=c.scripts.filter(s=>s.status!=='草稿').length+c.assets.length;
+  const st=[['stories',c.stories.length,'品牌故事'],['topics',c.topics.filter(t=>t.status==='待製作').length,'待製作選題'],['studio',c.scripts.length,'已建立文案'],['assets',saved,'已保存內容'],['cases',c.cases.length,'客戶案例'],['ctas',c.ctas.length,'CTA'],['funnels',c.funnels.length,'內容漏斗']];
+  return '<div class="card hi"><h2>'+esc(c.name)+'</h2><p class="muted">'+esc(c.brand.identity||c.persona.oneLine||'尚未填寫身份與定位')+'</p><div class="meter" aria-label="品牌記憶完整度"><i style="width:'+pct+'%"></i></div><p class="small muted">品牌記憶完整度 '+pct+'%。資料越完整，AI 產生的內容越像你。'+(pct<50?' <a href="#/brand">先補品牌記憶</a>':'')+'</p></div>'
+   +'<div class="stats">'+st.map(s=>'<a class="stat" href="#/'+s[0]+'"><b>'+s[1]+'</b><span>'+s[2]+'</span></a>').join('')+'</div>'
+   +'<h3 class="sec-t">快速入口</h3><div class="quick"><button class="btn gold" data-act="addEnt" data-ent="stories">新增故事</button><a class="btn" href="#/topics">找選題</a><button class="btn" data-act="newScript">建立文案</button><a class="btn" href="#/teardown">拆解影片</a><a class="btn" href="#/chat">AI顧問</a></div>';
+}
+function pageClients(){
+  const list=DB.clients.map(c=>{const on=c.id===DB.currentClientId;return '<article class="card item'+(on?' hi':'')+'"><h4>'+esc(c.name)+'</h4><div class="badges">'+(on?'<span class="badge gold">使用中</span>':'')+'<span class="badge">故事 '+c.stories.length+'</span><span class="badge">選題 '+c.topics.length+'</span><span class="badge">文案 '+c.scripts.length+'</span><span class="badge">建立於 '+fdate(c.createdAt)+'</span></div><div class="acts">'+(on?'':'<button class="btn sm gold" data-act="switchClient" data-id="'+esc(c.id)+'">切換到此業主</button>')+'<button class="btn sm" data-act="renameClient" data-id="'+esc(c.id)+'">編輯名稱</button><button class="btn sm danger" data-act="delClient" data-id="'+esc(c.id)+'">刪除</button></div></article>'}).join('');
+  return '<p class="muted">每個業主的資料彼此獨立。切換業主後，所有頁面與 AI 都會改用該業主的品牌記憶。</p><div class="bar"><button class="btn gold" data-act="addClient">新增業主專案</button></div>'+(list||'<div class="empty">還沒有業主專案。</div>');
+}
+function pageBrand(){
+  const c=cur();
+  return '<p class="muted">這是整個系統最重要的上下文。選題、文案、拆解與 AI 顧問都會優先參考這裡。</p><div class="card">'+BRAND.map(f=>fieldHTML(f,c.brand[f.k],'b_')).join('')+'</div><div class="savebar"><button class="btn gold" data-act="saveBrand">保存品牌記憶</button></div>';
+}
+function pagePersona(){
+  const c=cur();
+  return '<p class="muted">用一句話說清楚你是誰、幫誰、為什麼可信。</p><div class="bar"><button class="btn" data-act="personaFill">從品牌記憶帶入空白欄位</button></div><div class="card">'+PERSONA.map(f=>fieldHTML(f,c.persona[f.k],'p_')).join('')+'</div><div class="savebar"><button class="btn gold" data-act="savePersona">保存人設定位</button></div>';
+}
+function pageStories(){
+  return '<p class="muted">故事是人設與信任的來源。先直接輸入；也可以用 14 題訪談一步步整理。</p><div class="bar"><button class="btn gold" data-act="addEnt" data-ent="stories">直接輸入故事</button><button class="btn" data-act="interview">用訪談建立故事</button></div>'+collectionView('stories',()=>itemsOf('stories'),{typeLabel:'標籤'});
+}
+function suggHTML(){
+  if(!UI.sugg.length)return '';
+  return '<h3 class="sec-t">這次的建議</h3>'+UI.sugg.map((s,i)=>'<article class="card hi"><h4>'+esc(s.title)+'</h4><div class="badges"><span class="badge gold">'+esc(s.type||'')+'</span>'+(s.goal?'<span class="badge">'+esc(s.goal)+'</span>':'')+'</div><p class="pre"><b>為什麼適合我：</b>'+esc(s.reason)+'</p><p class="pre"><b>目標客群：</b>'+esc(s.audience)+'</p><p class="pre"><b>使用的故事：</b>'+esc(s.story||'（未指定）')+'</p><p class="pre"><b>內容切角：</b>'+esc(s.angle)+'</p><p class="pre"><b>核心訊息：</b>'+esc(s.message)+'</p><div class="acts"><button class="btn sm gold" data-act="suggSave" data-i="'+i+'">保存</button><button class="btn sm" data-act="suggEdit" data-i="'+i+'">編輯後保存</button><button class="btn sm danger" data-act="suggDrop" data-i="'+i+'">略過</button></div></article>').join('');
+}
+function pageTopics(){
+  return '<div class="card"><h3>讓 AI 依品牌記憶建議選題</h3><p class="muted small">選一種類型，系統會用目前業主的資料產生 4 個選題。</p><div class="chips" role="group" aria-label="選題類型">'+TOPIC_TYPES.map(t=>'<button class="chip'+(t===UI.topicType?' on':'')+'" data-act="pickTopicType" data-v="'+t+'">'+t+'</button>').join('')+'</div><button class="btn gold block" id="genTopics" data-act="genTopics">產生選題建議</button></div><div id="sugg">'+suggHTML()+'</div><h3 class="sec-t">我的選題</h3><div class="bar"><button class="btn" data-act="addEnt" data-ent="topics">手動新增選題</button></div>'+collectionView('topics',()=>itemsOf('topics'),{typeLabel:'選題類型'});
+}
+function pageStudio(){
+  return '<p class="muted">從選題開始，或直接建立空白文案。每支影片都能產生口播文案與一個人就能拍的拍攝建議。</p><div class="bar"><button class="btn gold" data-act="pickTopic">從選題開始</button><button class="btn" data-act="newScript">新增空白文案</button></div>'+collectionView('scripts',()=>itemsOf('scripts'));
+}
+function pageScript(id){
+  const c=cur(),s=c.scripts.find(x=>x.id===id);
+  if(!s)return '<div class="empty">找不到這支文案。<br><a class="btn gold" href="#/studio">回到工作區</a></div>';
+  const sh=s.shoot||{};const F=ENT.scripts.fields;
+  return '<a class="back" href="#/studio">‹ 回到短影音工作區</a><div class="card">'+F.map(f=>fieldHTML(f,s[f.k],'s_')).join('')
+   +'<div class="acts"><button class="btn gold" data-act="genScript">用 AI 產生文案</button><button class="btn" data-act="composeScript">依段落組合口播</button><button class="btn" data-act="copyScript">複製口播文案</button></div></div>'
+   +'<div class="card"><h3>拍攝建議</h3><p class="muted small">預設一個人、一支手機就能完成。</p>'+SHOOT.map(p=>fieldHTML({k:p[0],l:p[1],t:'area',rows:2},sh[p[0]],'sh_')).join('')+'<div class="acts"><button class="btn gold" data-act="genShoot">產生拍攝建議</button><button class="btn" data-act="copyShoot">複製拍攝建議</button></div></div>'
+   +'<div class="savebar"><button class="btn gold" data-act="saveScript" data-id="'+esc(s.id)+'">保存</button></div>';
+}
+function pageTeardown(){
+  const c=cur(),rec=UI.editTD?c.teardowns.find(x=>x.id===UI.editTD):null,v=rec||{};
+  const F=ENT.teardowns.fields;
+  return '<p class="muted">貼上別人的逐字稿或文案，系統會拆出結構，再依目前業主的品牌資料重寫成原創版本。只借結構，不複製原文。</p><div class="card">'+(rec?'<p class="badge gold">編輯中：'+esc(short(rec.source,20))+'</p>':'')+F.slice(0,2).map(f=>fieldHTML(f,v[f.k],'td_')).join('')+'<div class="acts"><button class="btn gold" data-act="tdAnalyze">拆解結構</button></div></div><div class="card"><h3>拆解結果</h3>'+F.slice(2,9).map(f=>fieldHTML(f,v[f.k],'td_')).join('')+'<div class="acts"><button class="btn gold" data-act="tdRewrite">依目前業主品牌資料產生原創版本</button></div></div><div class="card"><h3>原創版本</h3>'+fieldHTML(F[9],v.rewritten,'td_')+'<div class="acts"><button class="btn" data-act="tdCopy">複製原創版本</button><button class="btn" data-act="tdToFramework">存成文案架構</button></div></div><div class="bar"><button class="btn gold" data-act="tdSave">保存拆解</button><button class="btn" data-act="tdReset">清空重來</button></div><h3 class="sec-t">已保存的拆解</h3>'+collectionView('teardowns',()=>itemsOf('teardowns'));
+}
+function chatLog(c){
+  if(!c.chats.length)return '<div class="empty">還沒有對話。從下面的問題開始，或直接輸入你的問題。</div>';
+  return c.chats.map(m=>'<div class="bubble q">'+esc(m.q)+'</div><div class="bubble a">'+esc(m.a)+'<small>'+(m.demo?'示範回答・':'')+'參考：'+esc((m.related||[]).join('、')||'無')+'・'+fdate(m.createdAt)+'</small><div class="acts"><button class="btn sm" data-act="copyChat" data-id="'+esc(m.id)+'">複製回答</button></div></div>').join('');
+}
+function pageChat(){
+  const c=cur();
+  const qs=['這個故事適合拍成影片嗎？','這個題目比較適合做流量還是獲客？','這篇文案哪裡不像我？','我想讓這篇更自然，要怎麼改？','這個 CTA 適合我的服務嗎？'];
+  return '<p class="muted">AI 顧問會先讀取「'+esc(c.name)+'」的品牌記憶、人設、故事、服務、客群與過往內容，再回答。'+(aiStatus()?'':'目前尚未設定 AI API，會顯示示範回答。')+'</p><div id="chatlog">'+chatLog(c)+'</div><div class="chips">'+qs.map(q=>'<button class="chip" data-act="chatQuick" data-q="'+esc(q)+'">'+esc(q)+'</button>').join('')+'</div><div class="card"><div class="fld"><label for="chatq">你的問題</label><textarea id="chatq" class="inp" rows="3" placeholder="把想討論的故事、題目或文案貼在這裡"></textarea></div><div class="acts"><button class="btn gold" id="chatSend" data-act="chatSend">送出</button><button class="btn danger" data-act="chatClear">清除對話紀錄</button></div></div>';
+}
+function pageAssets(){
+  return '<p class="muted">這裡集中查看故事、選題、文案、架構、拆解、CTA 與漏斗，也可以手動新增內容資產。</p><div class="bar"><button class="btn gold" data-act="addEnt" data-ent="assets">新增內容資產</button></div>'+collectionView('assets',allItems,{showKind:true,typeLabel:'類型'});
+}
+function directOk(){return !!(SET.endpoint&&SET.model&&SET.key)}
+function aiStatus(){return backendOn()||directOk()}
+function pageSettings(){
+  return syncCardHTML()+'<div class="card"><h3>AI 直接連線（進階）</h3><p class="muted">'+(backendOn()?'已啟用雲端後端，AI 會走後端，這裡的設定目前不會被使用。':(directOk()?'狀態：已設定，AI 功能會直接呼叫你填的 API。':'狀態：尚未設定。所有資料功能照常使用，AI 功能顯示示範結果。'))+'</p>'
+   +'<div class="fld"><label for="set_endpoint">AI API Endpoint</label><input id="set_endpoint" class="inp" type="url" inputmode="url" autocomplete="off" placeholder="https://api.openai.com/v1/responses" value="'+esc(SET.endpoint)+'"></div>'
+   +'<div class="fld"><label for="set_model">Model</label><input id="set_model" class="inp" type="text" autocomplete="off" placeholder="模型名稱" value="'+esc(SET.model)+'"></div>'
+   +'<div class="fld"><label for="set_key">API Key</label><input id="set_key" class="inp" type="password" autocomplete="new-password" placeholder="'+(SET.key?'已儲存（為安全不顯示），留空表示不變更':'貼上你的 API Key')+'"></div>'
+   +'<p class="small muted">支援 OpenAI Responses、Chat Completions 相容格式，以及 Anthropic Messages（Endpoint 含 anthropic.com 時自動切換）。API Key 只存在這個瀏覽器，不會寫進程式碼，也不會包含在匯出的備份裡。若要公開給別人使用，建議之後改接你自己的後端代理，避免 Key 外洩。</p>'
+   +'<div class="acts"><button class="btn gold" data-act="saveSettings">保存設定</button><button class="btn" data-act="testAI">測試連線</button><button class="btn danger" data-act="clearKey">清除 API Key</button></div></div>';
+}
+function pageData(){
+  return '<div class="card"><h3>匯出備份</h3><p class="muted">把所有業主與資料存成 JSON 檔（不含 API Key）。建議定期備份。</p><div class="acts"><button class="btn gold" data-act="exportAll">下載 JSON 備份</button><button class="btn" data-act="copyExport">複製 JSON</button></div></div>'
+   +'<div class="card"><h3>匯入備份</h3><p class="muted">匯入前會先讓你確認，預設用「合併」，不會覆蓋目前資料。</p><div class="fld"><label for="impfile">選擇備份檔案</label><input id="impfile" class="inp" type="file" accept=".json,application/json"></div><div class="fld"><label for="imptext">或貼上 JSON 內容</label><textarea id="imptext" class="inp" rows="4" placeholder="貼上先前複製的 JSON"></textarea></div><button class="btn gold block" data-act="importPaste">檢查貼上的內容</button></div>'
+   +'<div class="card"><h3>其他</h3><p class="muted small">資料版本：'+APP.V+'。</p><div class="acts"><button class="btn" data-act="seedDemo">載入示範資料</button><button class="btn danger" data-act="wipeAll">清除全部資料</button></div></div>';
+}
+
+const PAGES={
+ dashboard:pageDashboard,clients:pageClients,brand:pageBrand,persona:pagePersona,stories:pageStories,
+ services:()=>entityPage('services'),cases:()=>entityPage('cases'),topics:pageTopics,frameworks:()=>entityPage('frameworks'),
+ teardown:pageTeardown,funnels:()=>entityPage('funnels','<p class="muted">把一支內容會怎麼帶來客戶，畫成清楚的路徑。</p>'),ctas:()=>entityPage('ctas'),
+ studio:pageStudio,script:pageScript,assets:pageAssets,chat:pageChat,settings:pageSettings,data:pageData
+};
+function pageTitle(p){let t='';GROUPS.forEach(g=>g.items.forEach(i=>{if(i[0]===p)t=i[1]}));return t||(p==='script'?'文案編輯':'首頁')}
+
+/* ============ 導覽與渲染 ============ */
+function navHTML(active){return GROUPS.map(g=>(g.t?'<div class="mgroup">'+g.t+'</div>':'')+g.items.map(i=>'<a class="mlink'+(i[0]===active?' on':'')+'" href="#/'+i[0]+'" data-act="closeModal">'+i[1]+'</a>').join('')).join('')}
+function renderChrome(page){
+  $('#sidebar').innerHTML='<div class="brand">短影音獲客工作台</div>'+navHTML(page);
+  const tabs=[['dashboard','首頁','home'],['topics','選題','topics'],['studio','工作區','studio'],['chat','AI顧問','chat']];
+  $('#tabbar').innerHTML=tabs.map(t=>'<a href="#/'+t[0]+'" class="'+(t[0]===page||(t[0]==='studio'&&page==='script')?'on':'')+'"><svg viewBox="0 0 24 24" aria-hidden="true">'+ICON[t[2]]+'</svg>'+t[1]+'</a>').join('')+'<button data-act="menu"><svg viewBox="0 0 24 24" aria-hidden="true">'+ICON.more+'</svg>更多</button>';
+  const c=cur();$('#clientpill').textContent=c?c.name:'尚未建立業主';
+  $('#ptitle').textContent=pageTitle(page);document.title=pageTitle(page)+'｜短影音內容獲客工作台';updateSyncDot();
+}
+function route(){const h=location.hash.replace(/^#\/?/,'')||'dashboard';const p=h.split('/');return{page:PAGES[p[0]]?p[0]:'dashboard',arg:p[1]||''}}
+function render(keepScroll){
+  closeModal(true);
+  const r=route();renderChrome(r.page);
+  let html;
+  try{html=(!cur()&&NOCLIENT_OK.indexOf(r.page)<0)?needClient():PAGES[r.page](r.arg)}catch(e){console.error(e);html='<div class="empty">這個頁面發生錯誤，請重新整理。<br>'+esc(e.message)+'</div>'}
+  $('#view').innerHTML=html;
+  if(!keepScroll)window.scrollTo(0,0);
+  if(r.page==='chat'){const l=$('#chatlog');if(l&&l.lastElementChild)l.lastElementChild.scrollIntoView({block:'end'})}
+}
+window.addEventListener('hashchange',()=>{if(!tryApplyPending(true))render()});
+
+/* ============ 動作 ============ */
+const ACT={};
+ACT.closeModal=()=>closeModal();
+ACT.menu=()=>modal({title:'選單',body:navHTML(route().page)});
+ACT.pickClient=()=>{
+  const body=(DB.clients.length?DB.clients.map(c=>'<button class="btn block" style="margin-bottom:8px;justify-content:space-between" data-act="switchClient" data-id="'+esc(c.id)+'"><span>'+esc(c.name)+'</span><span>'+(c.id===DB.currentClientId?'使用中':'')+'</span></button>').join(''):'<p class="muted">還沒有業主專案。</p>')+'<a class="btn block gold" href="#/clients" data-act="closeModal">管理業主專案</a>';
+  modal({title:'切換業主',body:body});
+};
+ACT.switchClient=t=>{DB.currentClientId=t.dataset.id;persist();toast('已切換到「'+cur().name+'」');render()};
+ACT.addClient=()=>modal({title:'新增業主專案',body:'<div class="fld"><label for="cname">業主名稱</label><input id="cname" class="inp" type="text" autocomplete="off" placeholder="例如：品牌名或人名"></div>',buttons:[{label:'取消',onClick:()=>closeModal()},{label:'建立',cls:'gold',onClick:()=>{const n=$('#cname').value.trim();if(!n){toast('請輸入業主名稱');return}const c=newClient(n);c.brand.name=n;DB.clients.push(c);DB.currentClientId=c.id;persist();closeModal(true);toast('已建立，先填寫品牌記憶吧');location.hash='#/brand';render()}}],onMount:()=>setTimeout(()=>{const e=$('#cname');if(e)e.focus()},50)});
+ACT.renameClient=t=>{const c=DB.clients.find(x=>x.id===t.dataset.id);if(!c)return;modal({title:'編輯業主名稱',body:'<div class="fld"><label for="cname">業主名稱</label><input id="cname" class="inp" type="text" value="'+esc(c.name)+'"></div>',buttons:[{label:'取消',onClick:()=>closeModal()},{label:'保存',cls:'gold',onClick:()=>{const n=$('#cname').value.trim();if(!n){toast('請輸入業主名稱');return}c.name=n;persist();closeModal(true);toast('已保存');render()}}]})};
+ACT.delClient=async t=>{const c=DB.clients.find(x=>x.id===t.dataset.id);if(!c)return;if(!await confirmDialog('確定刪除「'+c.name+'」？\n此業主的所有故事、選題、文案與紀錄都會一併刪除，且無法復原。建議先匯出備份。','刪除'))return;DB.clients=DB.clients.filter(x=>x.id!==c.id);if(DB.currentClientId===c.id)DB.currentClientId=DB.clients[0]?DB.clients[0].id:null;persist();toast('已刪除');render()};
+ACT.seedDemo=()=>{
+  const c=newClient('示範｜小安理財教室');c.isDemo=true;
+  c.brand={name:'小安理財教室',identity:'理財教練',job:'個人理財顧問',expertise:'上班族存錢與預算規劃',trait:'說話直白、愛用生活比喻',tone:'親切、不說教、像朋友聊天',values:'錢要為生活服務，不是讓人焦慮',direction:'存錢心態、預算技巧、真實客戶故事',audience:'25–35 歲、月光、想開始存錢的上班族',diff:'不推銷金融商品，只教可以持續的習慣',offers:'一對一預算諮詢、四週存錢陪跑班'};
+  c.persona={oneLine:'陪月光族找到「存得下來」方法的理財教練',identity:'理財教練',expertise:'預算與習慣設計',audience:'月光上班族',pain:'薪水一入帳就花光，月底又焦慮',diff:'用習慣而不是意志力',trust:'（示範資料，請換成你的真實經歷）',pillars:'心態／工具／案例',tone:'親切直白'};
+  c.stories.push({id:uid(),createdAt:iso(),title:'我第一次存到十萬塊',content:'剛出社會那幾年，我每個月都是月光。直到有一次朋友急需用錢，我卻一毛都拿不出來，才決定認真面對自己的帳。',when:'出社會第三年',people:'我、朋友',background:'薪水不低，但完全沒有存款',conflict:'朋友需要幫忙，我卻拿不出錢',twist:'我發現問題不是賺得少，而是沒有「先存再花」的設計',result:'一年後第一次存到十萬',insight:'存錢靠設計，不靠意志力',topics:'先存再花、自動轉帳',tags:'起點, 轉折'});
+  c.stories.push({id:uid(),createdAt:iso(),title:'一位學員的預算表重來三次',content:'有位學員前兩次都做不下去，因為表格太複雜。第三次我們只留下三個欄位。',when:'去年',people:'學員小美',background:'每次都放棄預算表',conflict:'表格太複雜',twist:'把表格縮到三欄',result:'連續記帳三個月',insight:'簡單才能持續',topics:'極簡預算',tags:'案例, 習慣'});
+  c.services.push({id:uid(),createdAt:iso(),name:'四週存錢陪跑班',intro:'每週一個小任務，四週建立自動存錢習慣',price:'依方案報價',audience:'月光上班族',solves:'薪水花光、不知道從哪開始存',features:'每週一次線上陪跑',flow:'報名 → 訪談 → 每週任務 → 回顧',cta:'私訊「陪跑」'});
+  c.cases.push({id:uid(),createdAt:iso(),title:'月光學員 90 天存下三個月生活費',problem:'每月都花光',background:'上班族，月薪固定',service:'四週存錢陪跑班',process:'設定自動轉帳、三欄預算',result:'三個月後有了緊急預備金',feedback:'終於不焦慮了',topics:'自動轉帳怎麼設'});
+  c.ctas.push({id:uid(),createdAt:iso(),text:'想開始存錢？留言「存錢」，我私訊你第一步',keyword:'存錢',action:'留言關鍵字',service:'四週存錢陪跑班',scenario:'存錢心態類影片結尾'});
+  COLS.forEach(k=>c[k].forEach(x=>{x.isDemo=true}));
+  DB.clients.push(c);DB.currentClientId=c.id;persist();toast('已載入示範資料');location.hash='#/dashboard';render();
+};
+ACT.addEnt=t=>openForm(t.dataset.ent);
+ACT.edit=t=>{
+  const e=t.dataset.ent,id=t.dataset.id;
+  if(e==='scripts'){location.hash='#/script/'+id;return}
+  if(e==='teardowns'){UI.editTD=id;if(location.hash==='#/teardown')render();else location.hash='#/teardown';return}
+  openForm(e,id);
+};
+function focusCard(key){const a=$$('[data-card]').find(x=>x.dataset.card===key);if(a){a.scrollIntoView({block:'start'});a.classList.add('flash');setTimeout(()=>a.classList.remove('flash'),1600)}}
+ACT.toggleItem=t=>{
+  const c=cur(),ent=t.dataset.ent,rec=c&&c[ent].find(x=>x.id===t.dataset.id);if(!rec)return;
+  const key=ent+':'+rec.id;if(UI.exp[key])delete UI.exp[key];else UI.exp[key]=1;
+  const art=t.closest('article');if(!art)return;
+  const wrap=document.createElement('div');wrap.innerHTML=cardHTML(toItem(ent,rec),art.dataset.sk==='1');
+  const n=wrap.firstElementChild;art.replaceWith(n);
+  if(!UI.exp[key])n.scrollIntoView({block:'nearest'});
+};
+ACT.copyItem=t=>{const r=findRec(t);if(r)copyText(r.full&&t.dataset.ent==='scripts'?r.full:itemText(t.dataset.ent,r))};
+ACT.dupItem=t=>{const c=cur(),r=findRec(t);if(!r)return;const n=JSON.parse(JSON.stringify(r));n.id=uid();n.createdAt=iso();delete n.updatedAt;const k=ENT[t.dataset.ent].title;if(n[k])n[k]=n[k]+'（副本）';c[t.dataset.ent].push(n);persist();toast('已建立副本');render(true)};
+ACT.delItem=async t=>{const c=cur(),r=findRec(t);if(!r)return;if(!await confirmDialog('確定刪除「'+(toItem(t.dataset.ent,r).title)+'」？此動作無法復原。','刪除'))return;c[t.dataset.ent]=c[t.dataset.ent].filter(x=>x.id!==r.id);persist();toast('已刪除');render(true)};
+
+ACT.saveBrand=()=>{const c=cur();c.brand=readFields(BRAND,'b_');persist();toast('品牌記憶已保存');renderChrome('brand')};
+ACT.savePersona=()=>{const c=cur();c.persona=readFields(PERSONA,'p_');persist();toast('人設定位已保存')};
+ACT.personaFill=()=>{const c=cur(),b=readFields(BRAND,'b_');let n=0;PERSONA.forEach(f=>{const src=b[f.k]||c.brand[f.k],el=$('#p_'+f.k);if(el&&!el.value.trim()&&src){el.value=src;n++}});toast(n?'已帶入 '+n+' 個欄位，記得保存':'沒有可帶入的空白欄位')};
+
+/* 訪談建立故事（第一版為文字訪談；之後可把每題答案交給 AI 追問） */
+function showInterview(){
+  const iv=UI.iv,q=INTERVIEW[iv.i],last=iv.i===INTERVIEW.length-1;
+  modal({title:'故事訪談 '+(iv.i+1)+' / '+INTERVIEW.length,body:'<p>'+esc(q.q)+'</p><div class="fld"><textarea id="ivans" class="inp" rows="6" placeholder="想到什麼就寫什麼，不確定可以先留白，之後再編輯">'+esc(iv.a[iv.i]||'')+'</textarea></div>',buttons:[
+   {label:iv.i?'上一題':'取消',onClick:()=>{iv.a[iv.i]=$('#ivans').value;if(iv.i){iv.i--;showInterview()}else closeModal()}},
+   {label:last?'完成並建立':'下一題',cls:'gold',onClick:()=>{iv.a[iv.i]=$('#ivans').value;if(!last){iv.i++;showInterview();return}finishInterview()}}]});
+}
+function finishInterview(){
+  const c=cur(),st={id:uid(),createdAt:iso(),source:'interview'};ENT.stories.fields.forEach(f=>st[f.k]='');
+  INTERVIEW.forEach((q,i)=>{const a=(UI.iv.a[i]||'').trim();if(!a)return;st[q.k]=st[q.k]?st[q.k]+'\n'+a:a});
+  if(!st.title)st.title=clause(st.content||st.background,18)||'訪談故事';
+  c.stories.push(st);persist();UI.iv=null;render();
+  modal({title:'✓ 故事已建立',body:'<p class="muted">14 題訪談已完成，內容已保存到品牌故事。</p><h4>'+esc(st.title)+'</h4><p class="meta">建立方式｜🎤 14題訪談</p>',buttons:[
+    {label:'回到故事列表',onClick:()=>{closeModal(true);window.scrollTo(0,0)}},
+    {label:'查看故事',cls:'gold',onClick:()=>{closeModal(true);UI.f.stories={q:'',type:'',status:'',sort:'new'};UI.exp['stories:'+st.id]=1;render(true);focusCard('stories:'+st.id)}}]});
+}
+ACT.interview=()=>{UI.iv={i:0,a:[]};showInterview()};
+
+/* 選題 */
+ACT.pickTopicType=t=>{UI.topicType=t.dataset.v;$$('.chip[data-act="pickTopicType"]').forEach(b=>b.classList.toggle('on',b.dataset.v===UI.topicType))};
+ACT.genTopics=async t=>{
+  const c=cur();setBusy(t,true,'產生中…');
+  const type=UI.topicType;
+  const prompt='請依品牌資料，提出 4 個「'+type+'」的短影音選題。每個選題要說明為什麼適合這位業主、使用哪一則既有故事（story 欄位請填故事標題，沒有就留空）。\n規則：title 必須是一句獨立、完整的短影音標題（約 30 字內），不得夾帶客群描述、現況、推薦理由或其他欄位內容，也不得用「…」截斷；各欄位資料必須分開填寫，彼此不可混用。\n輸出 JSON 陣列，每個物件包含欄位：title, type（固定填「'+type+'」）, goal, audience, reason, story, angle, message。';
+  const r=await aiJSON(c,prompt,()=>demoTopics(c,type));
+  setBusy(t,false);
+  let arr=Array.isArray(r.data)?r.data:(r.data&&r.data.topics)||[];
+  arr=arr.map(x=>({title:String(x.title||'').replace(/\.{3}|…/g,'').trim(),type:type,goal:String(x.goal||''),audience:String(x.audience||''),reason:String(x.reason||''),story:String(x.story||''),angle:String(x.angle||''),message:String(x.message||'')})).filter(x=>x.title);
+  if(!arr.length){toast('沒有取得選題，請再試一次');return}
+  UI.sugg=arr;const box=$('#sugg');if(box)box.innerHTML=suggHTML();
+  toast(r.demo?'已產生示範選題（尚未設定 AI API）':'已產生選題建議',3200);
+};
+function suggToTopic(s){return{title:s.title,type:s.type||TOPIC_TYPES[0],goal:s.goal,audience:s.audience,reason:s.reason,story:s.story,angle:s.angle,message:s.message,status:'待製作'}}
+ACT.suggSave=t=>{const c=cur(),i=+t.dataset.i,s=UI.sugg[i];if(!s)return;c.topics.push(Object.assign({id:uid(),createdAt:iso()},suggToTopic(s)));UI.sugg.splice(i,1);persist();toast('已保存到我的選題');render(true)};
+ACT.suggEdit=t=>{const i=+t.dataset.i,s=UI.sugg[i];if(!s)return;openForm('topics',null,suggToTopic(s),()=>{UI.sugg.splice(i,1)})};
+ACT.suggDrop=t=>{UI.sugg.splice(+t.dataset.i,1);const box=$('#sugg');if(box)box.innerHTML=suggHTML()};
+
+/* 文案 */
+function mkScript(x){return Object.assign({id:uid(),createdAt:iso(),title:'未命名短影音文案',goal:'',hook:'',problem:'',story:'',twist:'',body:'',solution:'',ending:'',cta:'',full:'',status:'草稿',topicId:'',shoot:{}},x||{})}
+ACT.newScript=()=>{const c=cur();if(!c){toast('請先建立業主專案');location.hash='#/clients';return}const s=mkScript();c.scripts.push(s);persist();location.hash='#/script/'+s.id};
+ACT.topicToScript=t=>{const c=cur(),tp=c.topics.find(x=>x.id===t.dataset.id);if(!tp)return;const s=mkScript({title:tp.title,goal:tp.goal||'',topicId:tp.id});c.scripts.push(s);if(tp.status==='待製作')tp.status='製作中';persist();toast('已建立文案，按「用 AI 產生文案」開始');location.hash='#/script/'+s.id};
+ACT.pickTopic=()=>{
+  const c=cur();
+  if(!c.topics.length){info('還沒有選題','先到「選題建議」保存一些選題，再回來從選題開始。');return}
+  modal({title:'選一個選題',body:c.topics.map(tp=>'<button class="btn block" style="margin-bottom:8px;justify-content:flex-start;text-align:left;height:auto;padding:12px 14px" data-act="topicToScript" data-id="'+esc(tp.id)+'">'+esc(tp.title)+'</button>').join('')});
+};
+function curScript(){const id=route().arg;const c=cur();return c?c.scripts.find(x=>x.id===id):null}
+function readScript(s){const v=readFields(ENT.scripts.fields,'s_');Object.assign(s,v);const sh={};SHOOT.forEach(p=>{const e=$('#sh_'+p[0]);sh[p[0]]=e?e.value.trim():''});s.shoot=sh;s.updatedAt=iso()}
+function fillScript(o){ENT.scripts.fields.forEach(f=>{if(o[f.k]!=null&&f.k!=='title'&&f.k!=='status'&&f.k!=='goal'){const e=$('#s_'+f.k);if(e)e.value=o[f.k]}})}
+ACT.saveScript=()=>{const s=curScript();if(!s)return;readScript(s);if(!s.title){toast('請填寫標題');return}persist();toast('已保存')};
+ACT.composeScript=()=>{const o={};SECTIONS.forEach(k=>{const e=$('#s_'+k);o[k]=e?e.value.trim():''});$('#s_full').value=composeFull(o);toast('已依段落組合，記得保存')};
+ACT.copyScript=()=>{const e=$('#s_full');copyText(e?e.value:'')};
+const LABEL_LEAK=/(目標客群|內容切角|核心訊息|推薦理由|使用的故事|寫作方向)\s*[：:]/;
+function cleanSpoken(t){const seen={},out=[];String(t||'').split(/\n+/).forEach(x=>{const k=x.replace(/\s+/g,'');if(!k||seen[k])return;seen[k]=1;out.push(x.trim())});return out.join('\n\n')}
+ACT.genScript=async t=>{
+  const c=cur(),s=curScript();if(!s)return;readScript(s);
+  const tp=c.topics.find(x=>x.id===s.topicId)||{title:s.title,goal:s.goal};
+  setBusy(t,true,'產生中…');
+  const acq=/獲客|獲取客戶/.test((tp.type||'')+(tp.goal||s.goal||''));
+  const prompt='請為以下選題寫一支 45–60 秒、可以直接對鏡頭說的短影音口播文案。\n選題：'+(tp.title||s.title)+'\n類型：'+(tp.type||'')+'\n目標：'+(tp.goal||s.goal||'')+'\n寫作方向（只供你理解，不可寫進口播）：'+(tp.angle||'')+'\n核心訊息：'+(tp.message||'')+'\n使用的故事：'+(tp.story||'（請從品牌故事中挑最合適的）')+'（請用自己的話重新敘述，不要照抄原文）\n結尾：'+(acq?'這支以獲客為目標，可以自然帶出一次行動呼籲，不要硬推銷':'這支不是銷售影片，不要放服務或價格的 CTA，用自然收尾或互動邀請')+'\n輸出 JSON 物件，欄位：hook（開頭鉤子）, problem, story, twist, body（核心內容）, solution, ending, cta, full（把各段串成完整口播）。full 必須是通順、可直接念的口語，不得出現欄位名稱或提示語，也不得重複段落；沒有資料的地方寫【請補充：…】，不要編造。';
+  const r=await aiJSON(c,prompt,()=>demoScript(c,tp));
+  setBusy(t,false);
+  const d=r.data||{};d.full=cleanSpoken(d.full||composeFull(d));if(!r.demo&&LABEL_LEAK.test(d.full))toast('文案中出現欄位名稱，請檢查後再使用',4200);
+  fillScript(d);readScript(s);persist();
+  toast(r.demo?'已產生示範文案並保存（尚未設定 AI API）':'已產生文案並保存',3200);
+};
+ACT.genShoot=async t=>{
+  const c=cur(),s=curScript();if(!s)return;readScript(s);
+  const txt=s.full||composeFull(s);
+  if(!txt){toast('先寫好或產生文案，再產生拍攝建議');return}
+  setBusy(t,true,'產生中…');
+  const prompt='請依以下口播文案，提供「一個人用手機就能拍完」的拍攝建議，要簡單實際，不需要專業團隊。\n文案：\n'+txt+'\n輸出 JSON 物件，欄位：people（出鏡人數）, who（出鏡人物）, delivery（口播方式）, shots（鏡位）, scene（拍攝場景）, cuts（鏡頭切換）, broll（B-roll）, subtitles（字幕建議）, focus（畫面重點）, cta（結尾 CTA 的畫面呈現）。';
+  const r=await aiJSON(c,prompt,()=>demoShoot(c,s));
+  setBusy(t,false);
+  const d=r.data||{};SHOOT.forEach(p=>{const e=$('#sh_'+p[0]);if(e&&d[p[0]]!=null)e.value=String(d[p[0]])});
+  readScript(s);persist();toast(r.demo?'已產生示範拍攝建議並保存':'已產生拍攝建議並保存',3200);
+};
+ACT.copyShoot=()=>copyText(SHOOT.map(p=>{const e=$('#sh_'+p[0]);return e&&e.value.trim()?p[1]+'：'+e.value.trim():''}).filter(Boolean).join('\n'));
+
+/* 影片拆解 */
+const TD_ANALYSIS=['hook','structure','storyWay','emotion','twist','cta','borrow'];
+ACT.tdAnalyze=async t=>{
+  const c=cur(),text=($('#td_content').value||'').trim();
+  if(!text){toast('請先貼上逐字稿或文案');$('#td_content').focus();return}
+  setBusy(t,true,'拆解中…');
+  const prompt='請拆解下面這段短影音內容的結構，只分析結構與手法，不要改寫。\n內容：\n'+text+'\n輸出 JSON 物件，欄位：hook（開頭鉤子）, structure（內容架構）, storyWay（故事方式）, emotion（情緒設計）, twist（轉折方式）, cta, borrow（可借鑑元素，只能是結構或手法，不是原句）。';
+  const r=await aiJSON(c,prompt,()=>demoTeardown(text));
+  setBusy(t,false);
+  TD_ANALYSIS.forEach(k=>{const e=$('#td_'+k);if(e&&r.data&&r.data[k]!=null)e.value=String(r.data[k])});
+  toast(r.demo?'已用內建規則拆解（尚未設定 AI API，僅供參考）':'已拆解',3200);
+};
+ACT.tdRewrite=async t=>{
+  const c=cur(),text=($('#td_content').value||'').trim();
+  if(!text&&!$('#td_structure').value.trim()){toast('請先貼上內容並拆解');return}
+  const an={};TD_ANALYSIS.forEach(k=>{an[k]=($('#td_'+k).value||'').trim()});
+  setBusy(t,true,'產生中…');
+  const prompt='以下是一段參考影片的結構拆解。請只借用它的「結構與手法」，依品牌資料重寫成這位業主自己的原創口播文案，內容要用他的故事、客群與服務。嚴禁複製原文句子。\n結構拆解：\n'+JSON.stringify(an)+'\n參考內容（僅供理解，禁止照抄）：\n'+short(text,1200)+'\n直接輸出口播文案純文字。';
+  const r=await callAI({system:sysPrompt(c),prompt:prompt});
+  setBusy(t,false);
+  let out;
+  if(r.demo){if(r.error)toast('AI 連線失敗（'+r.error+'），已改用示範結果',4000);out=demoRewrite(c,an)}else out=r.text.trim();
+  $('#td_rewritten').value=out;
+  toast(r.demo?'已產生示範版本（尚未設定 AI API）':'已產生原創版本',3200);
+};
+ACT.tdCopy=()=>copyText($('#td_rewritten').value);
+ACT.tdSave=()=>{
+  const c=cur(),v=readFields(ENT.teardowns.fields,'td_');
+  if(!v.source){toast('請填寫「原始影片或來源」');$('#td_source').focus();return}
+  const rec=UI.editTD?c.teardowns.find(x=>x.id===UI.editTD):null;
+  if(rec)Object.assign(rec,v,{updatedAt:iso()});else{const n=Object.assign({id:uid(),createdAt:iso()},v);c.teardowns.push(n);UI.editTD=n.id}
+  persist();toast('拆解已保存');render(true);
+};
+ACT.tdReset=()=>{UI.editTD=null;render()};
+ACT.tdToFramework=()=>{
+  const c=cur(),v=readFields(ENT.teardowns.fields,'td_');
+  if(!v.hook&&!v.structure){toast('請先拆解內容');return}
+  c.frameworks.push({id:uid(),createdAt:iso(),name:short(v.source||v.hook,20)+' 的架構',opening:v.hook,problem:'',emotion:v.emotion,story:v.storyWay,twist:v.twist,value:v.structure,cta:v.cta,scenario:v.borrow});
+  persist();toast('已存成文案架構');
+};
+
+/* AI顧問 */
+async function sendChat(q,btn){
+  const c=cur();if(!q)return;
+  setBusy(btn,true,'思考中…');
+  const hist=[];c.chats.slice(-5).forEach(m=>{hist.push({role:'user',content:m.q});hist.push({role:'assistant',content:m.a})});
+  const r=await callAI({system:sysPrompt(c)+'\n\n回答時請引用上面的品牌資料（例如哪一則故事、哪個服務），給具體可執行的建議，不要只講通用原則。',prompt:q,history:hist});
+  setBusy(btn,false);
+  let a;
+  if(r.demo){if(r.error)toast('AI 連線失敗（'+r.error+'），已改用示範回答',4000);a=demoChat(q,c)}else a=r.text.trim();
+  c.chats.push({id:uid(),q:q,a:a,related:relatedRefs(c),demo:!!r.demo,createdAt:iso()});
+  persist();
+  const l=$('#chatlog');if(l){l.innerHTML=chatLog(c);if(l.lastElementChild)l.lastElementChild.scrollIntoView({block:'end'})}
+  const ta=$('#chatq');if(ta)ta.value='';
+}
+ACT.chatSend=t=>{const ta=$('#chatq');const q=ta?ta.value.trim():'';if(!q){toast('請先輸入問題');return}sendChat(q,t)};
+ACT.chatQuick=t=>{const ta=$('#chatq');if(ta){ta.value=t.dataset.q;ta.focus()}};
+ACT.chatClear=async()=>{const c=cur();if(!c.chats.length){toast('目前沒有對話紀錄');return}if(!await confirmDialog('確定清除「'+c.name+'」的所有 AI 顧問對話紀錄？','清除'))return;c.chats=[];persist();render(true)};
+ACT.copyChat=t=>{const c=cur(),m=c.chats.find(x=>x.id===t.dataset.id);if(m)copyText(m.a)};
+
+/* 設定 */
+ACT.saveSettings=()=>{SET.endpoint=$('#set_endpoint').value.trim();SET.model=$('#set_model').value.trim();const k=$('#set_key').value.trim();if(k)SET.key=k;saveSettings();toast('設定已保存');render(true)};
+ACT.clearKey=async()=>{if(!SET.key){toast('目前沒有儲存 API Key');return}if(!await confirmDialog('確定清除已儲存的 API Key？','清除'))return;SET.key='';saveSettings();toast('已清除');render(true)};
+async function probeReach(url){
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),8000);
+  try{await fetch(url,{mode:'no-cors',signal:ctl.signal,cache:'no-store'});return true}catch(e){return false}finally{clearTimeout(to)}
+}
+ACT.testAI=async t=>{
+  SET.endpoint=$('#set_endpoint').value.trim()||SET.endpoint;SET.model=$('#set_model').value.trim()||SET.model;const k=$('#set_key').value.trim();if(k)SET.key=k;
+  if(!aiStatus()){info('尚未設定完整','請填寫 Endpoint、Model 與 API Key，再測試連線。');return}
+  let origin='';
+  try{const u=new URL(SET.endpoint);if(u.protocol!=='https:'&&u.protocol!=='http:')throw 0;origin=u.origin}
+  catch(e){info('Endpoint 格式不正確','請填寫完整網址，例如 https://api.openai.com/v1/responses（要有 https://，前後不要有空白或換行）。');return}
+  if(/[^\x21-\x7E]/.test(SET.key)){info('API Key 含有不正常的字元','API Key 只會有英文、數字與符號。可能貼上了空白、換行或全形字，請清除後重新貼上。');return}
+  setBusy(t,true,'測試中…');
+  const r=await callAI({system:'你是連線測試助手。',prompt:'請只回覆「OK」兩個字。'});
+  let extra='';
+  if(r.demo&&r.net){
+    const reach=await probeReach(origin+'/');
+    extra=reach?'\n\n診斷：這個頁面連得到 '+origin+'，但瀏覽器不讓程式讀取回應。常見原因是該服務不允許網頁直接呼叫（CORS），或 Endpoint 路徑不正確。確認網址無誤後仍失敗，就需要改由自己的後端轉接。':'\n\n診斷：這個頁面連不到 '+origin+'。請檢查網路、VPN 或廣告／隱私阻擋；如果是在聊天室或檔案預覽視窗裡打開這個 HTML，外部連線常被擋，請改用 Safari／Chrome 直接開啟檔案再測。';
+  }
+  setBusy(t,false);
+  if(r.demo)info('連線失敗',(r.error||'未知錯誤')+extra);
+  else{saveSettings();info('連線成功','AI 回覆：'+short(r.text,60)+'\n\n設定已保存。')}
+};
+
+/* 匯出／匯入 */
+function exportObj(){return{app:'short-video-studio',dataVersion:APP.V,exportedAt:iso(),currentClientId:DB.currentClientId,clients:DB.clients}}
+ACT.exportAll=()=>{
+  const json=JSON.stringify(exportObj(),null,2),d=new Date();
+  const name='brand-studio-backup-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'-'+pad(d.getHours())+pad(d.getMinutes())+'.json';
+  try{const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),4000);toast('已匯出 '+name,3600)}
+  catch(e){copyText(json);toast('無法下載，已改為複製 JSON')}
+};
+ACT.copyExport=()=>copyText(JSON.stringify(exportObj(),null,2));
+ACT.importPaste=()=>{const t=$('#imptext').value.trim();if(!t){toast('請先貼上 JSON 內容');return}previewImport(t)};
+function previewImport(text){
+  let obj;
+  try{obj=JSON.parse(text)}catch(e){info('無法匯入','這不是有效的 JSON，請確認是由本工具匯出的備份檔。');return}
+  if(!obj||!Array.isArray(obj.clients)){info('無法匯入','在檔案中找不到業主資料，請確認是由本工具匯出的備份檔。');return}
+  if((Number(obj.dataVersion)||1)>APP.V){info('無法匯入','這份備份來自較新的版本（v'+obj.dataVersion+'），目前工具是 v'+APP.V+'，請先更新工具。');return}
+  const data=migrate({dataVersion:obj.dataVersion||1,currentClientId:obj.currentClientId,clients:JSON.parse(JSON.stringify(obj.clients))});
+  const sum=data.clients.map(c=>'・'+esc(c.name)+'（故事 '+c.stories.length+'、選題 '+c.topics.length+'、文案 '+c.scripts.length+'）').join('<br>');
+  modal({title:'確認匯入',body:'<p>備份時間：'+esc(fdate(obj.exportedAt)||'未知')+'<br>內含 '+data.clients.length+' 個業主：</p><p class="small">'+sum+'</p><label class="radio"><input type="radio" name="impmode" value="merge" checked><span><b>合併（建議）</b><br><span class="muted small">保留現有資料，把備份中的業主新增進來。</span></span></label><label class="radio"><input type="radio" name="impmode" value="replace"><span><b>取代全部</b><br><span class="muted small">先清除目前所有資料，再還原備份。</span></span></label>',buttons:[{label:'取消',onClick:()=>closeModal()},{label:'匯入',cls:'gold',onClick:async()=>{
+    const mode=($('input[name="impmode"]:checked')||{}).value||'merge';closeModal(true);
+    if(mode==='replace'){if(!await confirmDialog('「取代全部」會刪除目前所有業主與資料，無法復原。\n建議先匯出目前資料備份。確定要取代嗎？','取代'))return;DB=data}
+    else{data.clients.forEach(c=>{if(DB.clients.some(x=>x.id===c.id))c.id=uid();if(DB.clients.some(x=>x.name===c.name))c.name+='（匯入）';DB.clients.push(c)});if(!DB.currentClientId&&DB.clients[0])DB.currentClientId=DB.clients[0].id}
+    DB=migrate(DB);persist();toast('匯入完成');render();
+  }}]});
+}
+ACT.wipeAll=async()=>{if(!await confirmDialog('確定清除全部業主與資料？此動作無法復原，建議先匯出備份。（AI 設定不會被清除）'+(backendOn()?'\n\n雲端同步已開啟：雲端資料也會被清空，之後只能從「雲端歷史版本」還原。':''),'清除全部'))return;DB={dataVersion:APP.V,currentClientId:null,clients:[]};persist();toast('已清除');location.hash='#/dashboard';render()};
+
+/* 雲端同步動作 */
+ACT.saveSync=async t=>{
+  let url=$('#sync_url').value.trim(),tk=$('#sync_token').value.trim();
+  if(!tk)tk=SYNC.token;
+  if(!url||!tk){info('請填寫完整','需要同時填寫後端網址與同步密碼。');return}
+  try{const u=new URL(url);if(u.protocol!=='https:'&&!/^(localhost|127\.0\.0\.1)$/.test(u.hostname))throw 0;url=u.origin}
+  catch(e){info('後端網址格式不正確','請填寫完整網址，例如 https://brand-studio-sync.你的帳號.workers.dev（要有 https://）。');return}
+  if(/[^\x21-\x7E]/.test(tk)){info('同步密碼含有不正常的字元','同步密碼只能是英文、數字與符號。可能貼上了空白、換行或全形字，請清除後重新貼上。');return}
+  const old={url:SYNC.url,token:SYNC.token,auto:SYNC.auto};
+  const restore=()=>{SYNC.url=old.url;SYNC.token=old.token;SYNC.auto=old.auto};
+  SYNC.url=url;SYNC.token=tk;SYNC.auto=$('#sync_auto').value==='1';
+  setBusy(t,true,'連線中…');
+  const hl=await cloudFetch('/api/health',{noAuth:true,timeout:15000});
+  if(!hl.ok||!hl.json||!hl.json.ok){
+    let extra='';
+    if(hl.net){const reach=await probeReach(url+'/');extra=reach?'\n\n診斷：這個頁面連得到 '+url+'，但瀏覽器不讓程式讀取回應。最常見的原因是後端的 ALLOWED_ORIGINS 沒有填你的網頁網址（要填 https://帳號.github.io，不含路徑）。':'\n\n診斷：連不到 '+url+'。請檢查網址有沒有打錯、網路是否正常；如果是在聊天室或檔案預覽視窗裡打開這個 HTML，外部連線常被擋，請改用 Safari／Chrome 直接開啟。'}
+    setBusy(t,false);restore();
+    info('連線失敗',(hl.net?'無法連到後端。':cloudErr(hl))+extra);return;
+  }
+  const au=await cloudFetch('/api/history');
+  if(!au.ok){setBusy(t,false);restore();info('連線失敗',cloudErr(au));return}
+  saveSync();
+  const res=await linkSync();
+  setBusy(t,false);
+  syncStart();
+  render(true);
+  if(res.pendingChoice&&SYNC.cloud)showConflict();
+  const ai=hl.json.ai||{};
+  const aiMsg=ai.key&&ai.model?'AI：後端已設定 Key 與模型，AI 功能會走後端。':'AI：後端還沒設定完整（缺 '+[ai.key?'':'OPENAI_API_KEY',ai.model?'':'OPENAI_MODEL'].filter(Boolean).join('、')+'）。資料同步可以用，AI 暫時仍是示範結果。';
+  if(!res.pendingChoice)info(res.ok?'已連線':'已連線，但同步有問題',res.msg+'\n\n'+aiMsg);
+};
+ACT.syncNow=async t=>{
+  if(SYNC.state==='conflict'&&SYNC.cloud){showConflict();return}
+  setBusy(t,true,'同步中…');
+  await pullNow();
+  if(SYNC.pending&&SYNC.state!=='conflict'){const p=SYNC.pending;SYNC.pending=null;applyCloud(p.data,p.rev,false)}
+  if(SYNC.dirty&&SYNC.state!=='conflict')await pushNow();
+  setBusy(t,false);
+  if(SYNC.state==='conflict')return;
+  toast(SYNC.state==='ok'&&!SYNC.dirty?'已同步':(SYNC.err||'同步沒有完成，稍後會再試'));
+};
+ACT.conflictCloud=()=>{const c=SYNC.cloud;closeModal(true);if(!c)return;SYNC.pending=null;applyCloud(c.data,c.rev,false)};
+ACT.conflictLocal=async()=>{
+  const c=SYNC.cloud;closeModal(true);if(!c)return;
+  SYNC.rev=c.rev;SYNC.cloud=null;SYNC.dirty=true;saveSync();setSyncState('ok');
+  const ok=await pushNow(true);
+  toast(ok?'已用這台的資料覆蓋雲端':'上傳沒有成功，稍後會再試');
+};
+ACT.testBackendAI=async t=>{
+  setBusy(t,true,'測試中…');
+  const r=await callBackendAI({system:'你是連線測試助手。',prompt:'請只回覆「OK」兩個字。'});
+  setBusy(t,false);
+  if(r.demo)info('雲端 AI 測試失敗',r.error||'未知錯誤');else info('雲端 AI 測試成功','AI 回覆：'+short(r.text,60));
+};
+ACT.syncHistory=async()=>{
+  const r=await cloudFetch('/api/history');
+  if(!r.ok||!r.json){info('讀取失敗',cloudErr(r));return}
+  const items=r.json.items||[];
+  const rows=items.map(x=>'<div class="radio"><div style="flex:1"><b>版本 '+x.rev+(x.rev===r.json.current?'（目前）':'')+'</b><br><span class="small muted">'+esc(fdate(x.ts)+' '+timeOf(x.ts))+'・'+Math.max(1,Math.round(x.bytes/1024))+' KB</span></div>'+(x.rev===r.json.current?'':'<button class="btn sm" data-act="restoreRev" data-rev="'+x.rev+'">還原</button>')+'</div>').join('');
+  modal({title:'雲端歷史版本',body:'<p class="small muted">最近 '+items.length+' 次上傳。還原會把那一版放回這台並上傳成最新版本，現在的資料仍留在歷史裡。</p>'+(rows||'<div class="empty">還沒有任何版本。</div>'),buttons:[{label:'關閉',cls:'gold',onClick:()=>closeModal()}]});
+};
+ACT.restoreRev=async t=>{
+  const rev=Number(t.dataset.rev);
+  if(!await confirmDialog('確定把雲端版本 '+rev+' 還原成目前的資料？\n這台和雲端現在的內容會被取代（雲端現在這一版仍保留在歷史裡）。','還原'))return;
+  const r=await cloudFetch('/api/data?rev='+rev);
+  if(!r.ok||!r.json||!r.json.data){info('還原失敗',cloudErr(r));return}
+  const hh=await cloudFetch('/api/history');
+  if(!hh.ok||!hh.json){info('還原失敗',cloudErr(hh));return}
+  if(Number(r.json.data.dataVersion||1)>APP.V){info('還原失敗','這一版來自較新版本的程式，請重新整理網頁取得最新版。');return}
+  backupLocal();
+  SYNC.applying=true;
+  try{DB=migrate({dataVersion:r.json.data.dataVersion||1,currentClientId:DB.currentClientId,clients:r.json.data.clients||[]});persist()}finally{SYNC.applying=false}
+  SYNC.rev=hh.json.current;SYNC.dirty=true;SYNC.cloud=null;SYNC.pending=null;saveSync();setSyncState('ok');
+  render(true);
+  const ok=await pushNow(true);
+  toast(ok?'已還原版本 '+rev+' 並上傳':'已還原到這台，上傳沒有成功，稍後會再試');
+};
+ACT.syncOff=async()=>{
+  if(!await confirmDialog('確定停用雲端同步？\n這台的資料會保留，雲端的資料不會被刪除；AI 會改回「AI 直接連線」的設定。','停用'))return;
+  clearInterval(SYNC.poll);clearTimeout(SYNC.timer);
+  SYNC.url='';SYNC.token='';SYNC.dirty=false;SYNC.pending=null;SYNC.cloud=null;SYNC.state='ok';saveSync();
+  toast('已停用同步，這台的資料保留');render(true);
+};
+ACT.downloadPrev=()=>{
+  let p=null;try{p=JSON.parse(localStorage.getItem(APP.K.prev)||'null')}catch(e){}
+  if(!p||!p.data){toast('沒有可下載的備份');return}
+  const obj={app:'short-video-studio',dataVersion:APP.V,exportedAt:p.ts,currentClientId:p.data.currentClientId,clients:p.data.clients};
+  const d=new Date(p.ts),name='brand-studio-before-sync-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'-'+pad(d.getHours())+pad(d.getMinutes())+'.json';
+  try{const url=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),4000);toast('已匯出 '+name,3600)}
+  catch(e){copyText(JSON.stringify(obj,null,2));toast('無法下載，已改為複製 JSON')}
+};
+
+/* ============ 事件綁定 ============ */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act]');if(!t)return;
+  const fn=ACT[t.dataset.act];if(!fn){console.warn('未定義的動作：'+t.dataset.act);return}
+  if(t.tagName!=='A')e.preventDefault();
+  fn(t,e);
+});
+function onFilter(e){
+  const t=e.target;if(!t.dataset||!t.dataset.filter)return;
+  const vk=t.dataset.vk,f=UI.f[vk];if(!f)return;
+  f[t.dataset.filter]=t.value;
+  const box=$('#res-'+vk);if(box)box.innerHTML=resultsHTML(vk);
+}
+document.addEventListener('input',onFilter);
+document.addEventListener('change',e=>{
+  onFilter(e);
+  const t=e.target;
+  if(t&&t.id==='impfile'&&t.files&&t.files[0]){const fr=new FileReader();fr.onload=()=>{previewImport(String(fr.result||''));t.value=''};fr.onerror=()=>info('讀取失敗','無法讀取這個檔案。');fr.readAsText(t.files[0])}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#modal-root').classList.contains('open'))closeModal()});
+
+render();
+syncStart();
+})();
+</script>
+</body>
+</html>
