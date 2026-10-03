@@ -868,12 +868,12 @@ function pageAssets(){
 function directOk(){return !!(SET.endpoint&&SET.model&&SET.key)}
 function aiStatus(){return backendOn()||directOk()}
 function pageSettings(){
-  return syncCardHTML()+'<div class="card"><h3>AI 直接連線（進階）</h3><p class="muted">'+(backendOn()?'已啟用雲端後端，AI 會走後端，這裡的設定目前不會被使用。':(directOk()?'狀態：已設定，AI 功能會直接呼叫你填的 API。':'狀態：尚未設定。所有資料功能照常使用，AI 功能顯示示範結果。'))+'</p>'
+  return syncCardHTML()+'<details class="card"><summary style="cursor:pointer;font-weight:700;font-size:16px">AI 直接連線（進階）'+(backendOn()?'<span class="small muted" style="font-weight:400">　已改用雲端 AI，不需要設定</span>':'')+'</summary><p class="muted" style="margin-top:12px">'+(backendOn()?'已啟用雲端後端，AI 會走後端，這裡的設定目前不會被使用。':(directOk()?'狀態：已設定，AI 功能會直接呼叫你填的 API。':'狀態：尚未設定。所有資料功能照常使用，AI 功能顯示示範結果。'))+'</p>'
    +'<div class="fld"><label for="set_endpoint">AI API Endpoint</label><input id="set_endpoint" class="inp" type="url" inputmode="url" autocomplete="off" placeholder="https://api.openai.com/v1/responses" value="'+esc(SET.endpoint)+'"></div>'
    +'<div class="fld"><label for="set_model">Model</label><input id="set_model" class="inp" type="text" autocomplete="off" placeholder="模型名稱" value="'+esc(SET.model)+'"></div>'
    +'<div class="fld"><label for="set_key">API Key</label><input id="set_key" class="inp" type="password" autocomplete="new-password" placeholder="'+(SET.key?'已儲存（為安全不顯示），留空表示不變更':'貼上你的 API Key')+'"></div>'
    +'<p class="small muted">支援 OpenAI Responses、Chat Completions 相容格式，以及 Anthropic Messages（Endpoint 含 anthropic.com 時自動切換）。API Key 只存在這個瀏覽器，不會寫進程式碼，也不會包含在匯出的備份裡。若要公開給別人使用，建議之後改接你自己的後端代理，避免 Key 外洩。</p>'
-   +'<div class="acts"><button class="btn gold" data-act="saveSettings">保存設定</button><button class="btn" data-act="testAI">測試連線</button><button class="btn danger" data-act="clearKey">清除 API Key</button></div></div>';
+   +'<div class="acts"><button class="btn gold" data-act="saveSettings">保存設定</button><button class="btn" data-act="testAI">測試連線</button><button class="btn danger" data-act="clearKey">清除 API Key</button></div></details>';
 }
 function pageData(){
   return '<div class="card"><h3>匯出備份</h3><p class="muted">把所有業主與資料存成 JSON 檔（不含 API Key）。建議定期備份。</p><div class="acts"><button class="btn gold" data-act="exportAll">下載 JSON 備份</button><button class="btn" data-act="copyExport">複製 JSON</button></div></div>'
@@ -1177,7 +1177,7 @@ ACT.saveSync=async t=>{
   render(true);
   if(res.pendingChoice&&SYNC.cloud)showConflict();
   const ai=hl.json.ai||{};
-  const aiMsg=ai.key&&ai.model?'AI：後端已設定 Key 與模型，AI 功能會走後端。':'AI：後端還沒設定完整（缺 '+[ai.key?'':'OPENAI_API_KEY',ai.model?'':'OPENAI_MODEL'].filter(Boolean).join('、')+'）。資料同步可以用，AI 暫時仍是示範結果。';
+  const aiMsg=ai.key&&ai.model?'AI：後端已設定 Key 與模型，AI 功能會走後端。':'AI：後端還沒設定完整（缺 '+[ai.key?'':'AI 金鑰',ai.model?'':'模型名稱'].filter(Boolean).join('、')+'）。資料同步可以用，AI 暫時仍是示範結果。';
   if(!res.pendingChoice)info(res.ok?'已連線':'已連線，但同步有問題',res.msg+'\n\n'+aiMsg);
 };
 ACT.syncNow=async t=>{
