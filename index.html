@@ -91,6 +91,10 @@ select.inp{background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50
 .back{display:inline-block;margin-bottom:12px;padding:8px 0;text-decoration:none;color:var(--gold2)}
 .savebar{position:sticky;bottom:calc(70px + env(safe-area-inset-bottom));z-index:15;display:flex;gap:10px;padding:10px;background:rgba(14,13,11,.94);border:1px solid var(--line);border-radius:var(--r);margin-top:8px}
 .savebar .btn{flex:1}
+.cand{border-top:1px solid var(--line);padding:10px 0}.cand summary{cursor:pointer;padding:4px 0}
+.candtxt{white-space:pre-wrap;line-height:1.85;margin:8px 0;font-size:15px}
+.candwarn{color:var(--gold);font-size:13px;margin:6px 0}
+.autosv{align-self:center;font-size:12px;color:var(--muted);white-space:nowrap}
 
 .chain{list-style:none;margin:0 0 4px;padding:0}
 .chain li{padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
@@ -264,7 +268,7 @@ const storyOpts=()=>['',...(cur()?cur().stories.map(s=>s.title):[])];
 const svcShort=n=>{n=String(n==null?'':n).trim();const p=n.split(/[｜|]/)[0].trim()||n;return p.length>30?p.slice(0,30)+'…':p};
 const svcOpts=()=>[{v:'',l:''}].concat(cur()?cur().services.filter(s=>s.name).map(s=>({v:s.name,l:svcShort(s.name)})):[]);
 
-const BRAND=[T('name','品牌名稱'),T('identity','身份'),T('job','職業'),A('expertise','專業領域',{rows:3}),A('trait','個人特色',{rows:3}),A('tone','說話語氣',{rows:3}),A('values','價值觀',{rows:3}),A('direction','內容方向',{rows:3}),A('audience','目標客群',{rows:3}),A('diff','差異化',{rows:3}),A('offers','服務與產品',{rows:3})];
+const BRAND=[T('name','品牌名稱'),T('identity','身份'),T('job','職業'),A('expertise','專業領域',{rows:3}),A('trait','個人特色',{rows:3}),A('tone','說話語氣',{rows:3}),A('values','價值觀',{rows:3}),A('direction','內容方向',{rows:3}),A('audience','目標客群',{rows:3}),A('diff','差異化',{rows:3}),A('offers','服務與產品',{rows:3}),A('rules','口播固定規則（AI 寫文案一定遵守：公式、秒數、開頭字數、禁用語、簽名等）',{rows:10}),A('ctaLog','已用過的 CTA 紀錄（關鍵字與編號，AI 不會重複使用）',{rows:5})];
 const PERSONA=[A('oneLine','一句話定位',{rows:2,ph:'我幫【誰】解決【什麼問題】，用【獨特方式】'}),T('identity','身份'),A('expertise','專業',{rows:3}),A('audience','目標客群',{rows:3}),A('pain','客戶痛點',{rows:3}),A('diff','差異化',{rows:3}),A('trust','可信任理由',{rows:3}),A('pillars','內容支柱',{rows:3,ph:'例如：心態／方法／案例'}),A('tone','語氣風格',{rows:3})];
 
 const ENT={
@@ -666,7 +670,7 @@ async function callAI(o){
   finally{clearTimeout(to)}
 }
 function sysPrompt(c){
-  return '你是「'+(c.brand.name||c.name)+'」的短影音內容顧問與文案夥伴。\n\n基本規則：\n1. 一律優先使用下方品牌資料，不要產出放諸四海皆準的通用內容。\n2. 使用繁體中文；說話語氣以品牌資料中的「說話語氣」「語氣風格」為準。\n3. 拍攝建議以「一個人用手機即可完成」為前提。\n4. 拆解他人內容時只借結構與手法，不得複製原文。\n\n口播文案規則：\n- 流程是「理解資料 → 重組 → 自然改寫」，不是把品牌資料欄位直接串接。\n- 不得直接複製資料庫欄位文字；不得把欄位名稱或提示語（例如「目標客群：」「內容切角」「從最低潮的一天開始講」）寫進口播。\n- 不得產生殘句，不得重複相同或相似的段落。\n- 不得捏造不存在的客戶案例、數字、成果或經歷；缺資料時寫成【請補充：…】。只有下方標示為真實的案例才能引用；示範或測試資料一律不可當成真實案例。\n- 不要每支影片都硬塞服務銷售 CTA；只有目標是獲客時才自然帶出，否則以自然收尾或互動邀請為主。\n- 寫成可以直接對鏡頭說的口語，保留自然停頓與語氣；不要像 AI 報告或顧問文章。\n- 不要過度玄學化，也不要每一段都重複使用同一組抽象詞（例如宇宙、頻率、顯化、能量提升）。\n\n'+(c.isDemo?'注意：此業主為示範資料，不是真實品牌。\n\n':'')+'品牌資料：\n'+brandContext(c);
+  return '你是「'+(c.brand.name||c.name)+'」的短影音內容顧問與文案夥伴。\n\n基本規則：\n1. 一律優先使用下方品牌資料，不要產出放諸四海皆準的通用內容。\n2. 使用繁體中文；說話語氣以品牌資料中的「說話語氣」「語氣風格」為準。\n3. 拍攝建議以「一個人用手機即可完成」為前提。\n4. 拆解他人內容時只借結構與手法，不得複製原文。\n\n口播文案規則：\n- 流程是「理解資料 → 重組 → 自然改寫」，不是把品牌資料欄位直接串接。\n- 不得直接複製資料庫欄位文字；不得把欄位名稱或提示語（例如「目標客群：」「內容切角」「從最低潮的一天開始講」）寫進口播。\n- 不得產生殘句，不得重複相同或相似的段落。\n- 不得捏造不存在的客戶案例、數字、成果或經歷；缺資料時寫成【請補充：…】。只有下方標示為真實的案例才能引用；示範或測試資料一律不可當成真實案例。\n- 不要每支影片都硬塞服務銷售 CTA；只有目標是獲客時才自然帶出，否則以自然收尾或互動邀請為主。\n- 寫成可以直接對鏡頭說的口語，保留自然停頓與語氣；不要像 AI 報告或顧問文章。\n- 品牌資料中標示「不要／避免」的詞語與寫法，一律遵守，寫完逐條檢查。\n- 不要過度玄學化，也不要每一段都重複使用同一組抽象詞（例如宇宙、頻率、顯化、能量提升）。\n\n'+(c.isDemo?'注意：此業主為示範資料，不是真實品牌。\n\n':'')+'品牌資料：\n'+brandContext(c);
 }
 function parseJSON(t){
   t=String(t).replace(/```json|```/g,'');
@@ -843,10 +847,10 @@ function pageScript(id){
   const c=cur(),s=c.scripts.find(x=>x.id===id);
   if(!s)return '<div class="empty">找不到這支文案。<br><a class="btn gold" href="#/studio">回到工作區</a></div>';
   const sh=s.shoot||{};const F=ENT.scripts.fields;
-  return '<a class="back" href="#/studio">‹ 回到短影音工作區</a><div class="card">'+F.map(f=>fieldHTML(f,s[f.k],'s_')).join('')
+  return '<span id="scr_'+esc(s.id)+'" hidden></span><a class="back" href="#/studio">‹ 回到短影音工作區</a><div class="card">'+F.map(f=>fieldHTML(f,s[f.k],'s_')).join('')
    +'<div class="acts"><button class="btn gold" data-act="genScript">用 AI 產生文案</button><button class="btn" data-act="composeScript">依段落組合口播</button><button class="btn" data-act="copyScript">複製口播文案</button></div></div>'
    +'<div class="card"><h3>拍攝建議</h3><p class="muted small">預設一個人、一支手機就能完成。</p>'+SHOOT.map(p=>fieldHTML({k:p[0],l:p[1],t:'area',rows:2},sh[p[0]],'sh_')).join('')+'<div class="acts"><button class="btn gold" data-act="genShoot">產生拍攝建議</button><button class="btn" data-act="copyShoot">複製拍攝建議</button></div></div>'
-   +'<div class="savebar"><button class="btn gold" data-act="saveScript" data-id="'+esc(s.id)+'">保存</button></div>';
+   +candHTML(s)+'<div class="savebar"><span id="autosv" class="autosv"></span><button class="btn gold" data-act="saveScript" data-id="'+esc(s.id)+'">保存</button></div>';
 }
 function pageTeardown(){
   const c=cur(),rec=UI.editTD?c.teardowns.find(x=>x.id===UI.editTD):null,v=rec||{};
@@ -900,6 +904,7 @@ function renderChrome(page){
 }
 function route(){const h=location.hash.replace(/^#\/?/,'')||'dashboard';const p=h.split('/');return{page:PAGES[p[0]]?p[0]:'dashboard',arg:p[1]||''}}
 function render(keepScroll){
+  if(typeof AUTO_T!=='undefined'&&AUTO_T){clearTimeout(AUTO_T);AUTO_T=null;autoSaveScript(AUTO_SID)}
   closeModal(true);
   const r=route();renderChrome(r.page);
   let html;
@@ -996,7 +1001,7 @@ ACT.suggEdit=t=>{const i=+t.dataset.i,s=UI.sugg[i];if(!s)return;openForm('topics
 ACT.suggDrop=t=>{UI.sugg.splice(+t.dataset.i,1);const box=$('#sugg');if(box)box.innerHTML=suggHTML()};
 
 /* 文案 */
-function mkScript(x){return Object.assign({id:uid(),createdAt:iso(),title:'未命名短影音文案',goal:'',hook:'',problem:'',story:'',twist:'',body:'',solution:'',ending:'',cta:'',full:'',status:'草稿',topicId:'',shoot:{}},x||{})}
+function mkScript(x){return Object.assign({id:uid(),createdAt:iso(),title:'未命名短影音文案',candidates:[],goal:'',hook:'',problem:'',story:'',twist:'',body:'',solution:'',ending:'',cta:'',full:'',status:'草稿',topicId:'',shoot:{}},x||{})}
 ACT.newScript=()=>{const c=cur();if(!c){toast('請先建立業主專案');location.hash='#/clients';return}const s=mkScript();c.scripts.push(s);persist();location.hash='#/script/'+s.id};
 ACT.topicToScript=t=>{const c=cur(),tp=c.topics.find(x=>x.id===t.dataset.id);if(!tp)return;const s=mkScript({title:tp.title,goal:tp.goal||'',topicId:tp.id});c.scripts.push(s);if(tp.status==='待製作')tp.status='製作中';persist();toast('已建立文案，按「用 AI 產生文案」開始');location.hash='#/script/'+s.id};
 ACT.pickTopic=()=>{
@@ -1005,35 +1010,117 @@ ACT.pickTopic=()=>{
   modal({title:'選一個選題',body:c.topics.map(tp=>'<button class="btn block" style="margin-bottom:8px;justify-content:flex-start;text-align:left;height:auto;padding:12px 14px" data-act="topicToScript" data-id="'+esc(tp.id)+'">'+esc(tp.title)+'</button>').join('')});
 };
 function curScript(){const id=route().arg;const c=cur();return c?c.scripts.find(x=>x.id===id):null}
-function readScript(s){const v=readFields(ENT.scripts.fields,'s_');Object.assign(s,v);const sh={};SHOOT.forEach(p=>{const e=$('#sh_'+p[0]);sh[p[0]]=e?e.value.trim():''});s.shoot=sh;s.updatedAt=iso()}
+function readScript(s){if(!document.getElementById('scr_'+s.id))return false;const v=readFields(ENT.scripts.fields,'s_');Object.assign(s,v);const sh={};SHOOT.forEach(p=>{const e=$('#sh_'+p[0]);sh[p[0]]=e?e.value.trim():''});s.shoot=sh;s.updatedAt=iso();return true}
 function fillScript(o){ENT.scripts.fields.forEach(f=>{if(o[f.k]!=null&&f.k!=='title'&&f.k!=='status'&&f.k!=='goal'){const e=$('#s_'+f.k);if(e)e.value=o[f.k]}})}
 ACT.saveScript=()=>{const s=curScript();if(!s)return;readScript(s);if(!s.title){toast('請填寫標題');return}persist();toast('已保存')};
 ACT.composeScript=()=>{const o={};SECTIONS.forEach(k=>{const e=$('#s_'+k);o[k]=e?e.value.trim():''});$('#s_full').value=composeFull(o);toast('已依段落組合，記得保存')};
 ACT.copyScript=()=>{const e=$('#s_full');copyText(e?e.value:'')};
 const LABEL_LEAK=/(目標客群|內容切角|核心訊息|推薦理由|使用的故事|寫作方向)\s*[：:]/;
 function cleanSpoken(t){const seen={},out=[];String(t||'').split(/\n+/).forEach(x=>{const k=x.replace(/\s+/g,'');if(!k||seen[k])return;seen[k]=1;out.push(x.trim())});return out.join('\n\n')}
+/* ===== 文案產生：多版本候選、暫存、不怕切頁 ===== */
+let AUTO_T=null,AUTO_SID='';
+function autoSaveScript(sid){
+  const c=cur();const s=c&&c.scripts.find(x=>x.id===sid);if(!s)return;
+  const old=s.title;if(!readScript(s))return;if(!s.title)s.title=old;
+  persist();const e=$('#autosv');if(e){const d=new Date();e.textContent='已自動暫存 '+pad(d.getHours())+':'+pad(d.getMinutes())}
+}
+function onScriptEdit(e){
+  if(route().page!=='script'||!e.target.closest||!e.target.closest('#view'))return;
+  AUTO_SID=route().arg;clearTimeout(AUTO_T);AUTO_T=setTimeout(()=>{AUTO_T=null;autoSaveScript(AUTO_SID)},800);
+}
+document.addEventListener('input',onScriptEdit);document.addEventListener('change',onScriptEdit);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&AUTO_T){clearTimeout(AUTO_T);AUTO_T=null;autoSaveScript(AUTO_SID)}});
+
+function bannedWords(c){
+  const txt=[c.brand.tone,c.brand.trait,c.brand.values,c.persona.tone].filter(Boolean).join('\n'),out=[];let inAvoid=false;
+  txt.split(/\n/).forEach(line=>{
+    if(!line.trim())inAvoid=false;
+    if(/(避免|不要|禁止|不得|不可)\s*[：:]\s*$/.test(line.trim()))inAvoid=true;
+    if(inAvoid||/(不要|避免|禁止|不得|不可)/.test(line))(line.match(/[「『]([^」』]{1,60})[」』]/g)||[]).forEach(m=>m.slice(1,-1).split(/[、，,／\/]/).forEach(w=>{w=w.trim();if(w&&w.length<=8&&out.indexOf(w)<0)out.push(w)}));
+  });
+  return out;
+}
+const CAND_KEYS=SECTIONS.concat(['full']);
+function candHTML(s){
+  const a=s.candidates||[];if(!a.length)return '';
+  const bw=bannedWords(cur());
+  return '<div class="card" id="cands"><h3>AI 產生的版本</h3><p class="muted small">這些版本會自動保留在這支文案裡，離開頁面也不會消失。選一個「使用這版」，會填進上面的欄位。</p>'
+   +a.map((v,i)=>{
+     const hits=bw.map(w=>[w,String(v.full||'').split(w).length-1]).filter(x=>x[1]>0);
+     return '<details class="cand"'+(i===0?' open':'')+'><summary><b>'+esc(v.label||'版本')+'</b> <span class="small muted">'+esc(fdate(v.createdAt))+(v.demo?'・示範':'')+'</span></summary>'
+      +(hits.length?'<div class="candwarn">⚠ 含有你標示要避免的詞：'+esc(hits.map(x=>x[0]+(x[1]>1?'×'+x[1]:'')).join('、'))+'</div>':'')
+      +'<div class="candtxt">'+esc(v.full||composeFull(v))+'</div>'
+      +'<div class="acts"><button class="btn gold sm" data-act="useCand" data-id="'+esc(v.id)+'">使用這版</button><button class="btn sm" data-act="copyCand" data-id="'+esc(v.id)+'">複製</button><button class="btn sm danger" data-act="delCand" data-id="'+esc(v.id)+'">刪除</button></div></details>';
+   }).join('')+'</div>';
+}
+function scriptPrompt(c,tp,s,acq){
+  let p=scriptPromptBase(c,tp,s,acq);
+  const rl=String((c.brand&&c.brand.rules)||'').trim(),cl=String((c.brand&&c.brand.ctaLog)||'').trim();
+  if(rl){p=p.replace('每個 45–60 秒（約 250～330 字）','長度依「固定規則」').replace('hook（15 字內，','hook（字數與寫法依「固定規則」，');}
+  const ins=(rl?'\n\n【固定規則（最高優先；與下方「寫作要求」的結構、秒數、字數衝突時，一律以此為準，寫完逐條檢查）】\n'+rl:'')+(cl?'\n\n【已用過的 CTA 紀錄（新寫的 CTA 關鍵字不可與這些重複）】\n'+cl:'');
+  return ins?p.replace('\n\n寫作要求（逐條遵守）',ins+'\n\n寫作要求（逐條遵守）'):p;
+}
+function scriptPromptBase(c,tp,s,acq){
+  const sts=real(c,'stories');
+  const ord=sts.filter(x=>x.title===tp.story).concat(sts.filter(x=>x.title!==tp.story)).slice(0,4);
+  const stTxt=ord.length?ord.map(x=>'《'+x.title+'》'+short(x.content||x.background||'',600)+(x.twist?'｜轉折：'+short(x.twist,200):'')).join('\n\n'):'（目前沒有可用的真實故事）';
+  const ctl=real(c,'ctas').slice(0,8).map(x=>'- '+x.text+(x.keyword?'｜關鍵字：'+x.keyword:'')+(x.action?'｜動作：'+x.action:'')).join('\n')||'（目前沒有）';
+  const fnl=real(c,'funnels').slice(0,6).map(x=>'- 入口：'+x.entry+(x.keyword?'｜關鍵字：'+x.keyword:'')+(x.dm?'｜留言後的私訊內容：'+x.dm:'')+(x.next?'｜下一步：'+x.next:'')+(x.service?'｜對應服務：'+svcShort(x.service):'')).join('\n')||'（目前沒有）';
+  return '請為以下選題寫兩個「切入角度明顯不同」的短影音口播版本，每個 45–60 秒（約 250～330 字），可以直接對鏡頭說。\n選題：'+(tp.title||s.title)+'\n類型：'+(tp.type||'')+'\n目標：'+(tp.goal||s.goal||'')+'\n核心訊息（只供你理解）：'+(tp.message||'')+'\n寫作方向（只供你理解，不可寫進口播）：'+(tp.angle||'')+'\n\n【可用的真實故事（完整內容，只能使用這裡的事實）】\n'+stTxt+'\n\n【可用的 CTA】\n'+ctl+'\n\n【內容漏斗（留言關鍵字之後的流程）】\n'+fnl
+   +'\n\n寫作要求（逐條遵守）：\n1. 整支只談選題這一件事，開頭、中段、結尾都要扣住它，不可跑題，也不要把個人履歷從頭講一遍。\n2. 結構：hook（15 字內，直接說出觀眾最在意的事，或一個反直覺的判斷；不要用「你有沒有發現」「你是不是也」「你知道嗎」這類套句開頭）→ problem（一個具體畫面或場景，有動作、有一句話或細節）→ story（若有用到故事，只講與選題直接相關的一小段）→ body（關鍵判斷：指出觀眾原本沒看見的地方）→ twist（一句讓人停下來想的話）→ solution（觀眾今天就能用的東西：一個判斷標準、一個自我檢查問題，或一個小動作，必須具體）→ ending（自然收尾，不要雞湯）→ cta。\n3. 看完必須「帶得走一個具體的東西」，不能只有共鳴、安慰或抽象說法；不要用「看見自己」「重新整理」「找到方向」這類沒有說明做法的空話。\n4. 故事只能使用上面真實故事裡的事實；故事與選題無關就不要硬用，改描述「很多人常見的場景」，且不要寫成某位真實客戶的案例。不得編造經歷、客戶、數字或成果。\n5. CTA：'+(acq?'必須和這支影片的主題直接相關，並清楚說出「留言或私訊之後會得到什麼、會發生什麼事」。只能使用上方 CTA 與內容漏斗裡實際存在的關鍵字與流程，挑最貼近這支主題的一個；如果沒有任何一個貼題，cta 寫「【請補充：適合這支影片的 CTA 關鍵字，以及留言後對方會得到什麼】」，不要硬套不相關的 CTA，也不要自創免費資源、贈品、名額或價格。不要用「想聊聊你的近況」「留言跟我說說」這種沒有明確目的的邀請。':'這支不是銷售影片，不要放服務或價格；cta 用一個具體的互動邀請（例如請觀眾留言回答一個和內容相關的選擇題），不要只是「留言告訴我」。')+'\n6. 品牌資料裡標示「不要／避免」的詞語與寫法一律不可出現，寫完逐條檢查；語氣依「說話語氣」，像對一個人說話，不要像文章或報告。\n7. 兩個版本的切入點要真的不同：版本 A 從故事或畫面切入；版本 B 從一個直接的判斷或反直覺的觀點切入，不是只換幾個字。\n\n輸出 JSON 物件：{"versions":[{"label":"版本 A：（8 字內說明切入點）","hook":"","problem":"","story":"","twist":"","body":"","solution":"","ending":"","cta":"","full":""},{"label":"版本 B：…", …}]}。full 是把各段串成通順、可直接念的口播，不得出現欄位名稱或提示語，不得重複段落；其餘欄位是 full 對應的片段。沒有資料的地方寫【請補充：…】，不要編造。';
+}
+const findScript=(cid,sid)=>{const c=DB.clients.find(x=>x.id===cid);return c?c.scripts.find(x=>x.id===sid):null};
 ACT.genScript=async t=>{
-  const c=cur(),s=curScript();if(!s)return;readScript(s);
+  const c=cur(),s=curScript();if(!s)return;readScript(s);persist();
+  const cid=c.id,sid=s.id;
   const tp=c.topics.find(x=>x.id===s.topicId)||{title:s.title,goal:s.goal};
-  setBusy(t,true,'產生中…');
+  setBusy(t,true,'產生中…（可能要 30～60 秒，請先不要關閉網頁）');
   const acq=/獲客|獲取客戶/.test((tp.type||'')+(tp.goal||s.goal||''));
-  const prompt='請為以下選題寫一支 45–60 秒、可以直接對鏡頭說的短影音口播文案。\n選題：'+(tp.title||s.title)+'\n類型：'+(tp.type||'')+'\n目標：'+(tp.goal||s.goal||'')+'\n寫作方向（只供你理解，不可寫進口播）：'+(tp.angle||'')+'\n核心訊息：'+(tp.message||'')+'\n使用的故事：'+(tp.story||'（請從品牌故事中挑最合適的）')+'（請用自己的話重新敘述，不要照抄原文）\n結尾：'+(acq?'這支以獲客為目標，可以自然帶出一次行動呼籲，不要硬推銷':'這支不是銷售影片，不要放服務或價格的 CTA，用自然收尾或互動邀請')+'\n輸出 JSON 物件，欄位：hook（開頭鉤子）, problem, story, twist, body（核心內容）, solution, ending, cta, full（把各段串成完整口播）。full 必須是通順、可直接念的口語，不得出現欄位名稱或提示語，也不得重複段落；沒有資料的地方寫【請補充：…】，不要編造。';
-  const r=await aiJSON(c,prompt,()=>demoScript(c,tp));
+  const r=await aiJSON(c,scriptPrompt(c,tp,s,acq),()=>demoScript(c,tp));
   setBusy(t,false);
-  const d=r.data||{};d.full=cleanSpoken(d.full||composeFull(d));if(!r.demo&&LABEL_LEAK.test(d.full))toast('文案中出現欄位名稱，請檢查後再使用',4200);
-  fillScript(d);readScript(s);persist();
-  toast(r.demo?'已產生示範文案並保存（尚未設定 AI API）':'已產生文案並保存',3200);
+  let arr=Array.isArray(r.data)?r.data:(r.data&&Array.isArray(r.data.versions)?r.data.versions:(r.data?[r.data]:[]));
+  arr=arr.filter(x=>x&&typeof x==='object').slice(0,3);
+  const rec=findScript(cid,sid);
+  if(!rec){toast('這支文案已經不存在，結果沒有存入');return}
+  const shown=!!document.getElementById('scr_'+sid);
+  if(shown)readScript(rec);
+  const vs=arr.map((x,i)=>{const o={id:uid(),label:String(x.label||'版本 '+'ABC'[i]),createdAt:iso(),demo:!!r.demo};SECTIONS.forEach(k=>{o[k]=String(x[k]==null?'':x[k]).trim()});o.full=cleanSpoken(x.full||composeFull(o));return o});
+  if(!vs.length){toast('沒有取得文案，請再試一次');return}
+  if(!r.demo&&vs.some(v=>LABEL_LEAK.test(v.full)))toast('文案中出現欄位名稱，請檢查後再使用',4200);
+  rec.candidates=vs.concat(rec.candidates||[]).slice(0,6);rec.updatedAt=iso();persist();
+  if(shown){render(true);const e=$('#cands');if(e)e.scrollIntoView({block:'start'});toast(r.demo?'已產生示範版本（尚未設定 AI API），往下看「AI 產生的版本」':'已產生 '+vs.length+' 個版本，往下看「AI 產生的版本」',3600)}
+  else toast('文案已產生，存在「'+short(rec.title,14)+'」的版本清單，回到那支文案就看得到',4200);
+};
+ACT.useCand=async t=>{
+  const s=curScript();if(!s)return;readScript(s);
+  const v=(s.candidates||[]).find(x=>x.id===t.dataset.id);if(!v)return;
+  const had=CAND_KEYS.some(k=>String(s[k]||'').trim());
+  if(had&&!await confirmDialog('上面的欄位已經有內容，套用這版會取代它。\n取代前的內容會先存成一個版本，不會消失。要套用嗎？','套用'))return;
+  if(had){const snap={id:uid(),label:'套用前的內容',createdAt:iso(),demo:false};CAND_KEYS.forEach(k=>{snap[k]=s[k]||''});if(String(snap.full||composeFull(snap)).trim())s.candidates.unshift(snap)}
+  CAND_KEYS.forEach(k=>{s[k]=v[k]||''});s.candidates=s.candidates.slice(0,8);s.updatedAt=iso();persist();render(true);toast('已套用這版並保存');
+};
+ACT.copyCand=t=>{const s=curScript();const v=s&&(s.candidates||[]).find(x=>x.id===t.dataset.id);if(v)copyText(v.full||composeFull(v))};
+ACT.delCand=async t=>{
+  const s=curScript();if(!s)return;
+  if(!await confirmDialog('確定刪除這個 AI 版本？','刪除'))return;
+  readScript(s);s.candidates=(s.candidates||[]).filter(x=>x.id!==t.dataset.id);persist();render(true);toast('已刪除');
 };
 ACT.genShoot=async t=>{
-  const c=cur(),s=curScript();if(!s)return;readScript(s);
+  const c=cur(),s=curScript();if(!s)return;readScript(s);persist();
+  const cid=c.id,sid=s.id;
   const txt=s.full||composeFull(s);
   if(!txt){toast('先寫好或產生文案，再產生拍攝建議');return}
   setBusy(t,true,'產生中…');
   const prompt='請依以下口播文案，提供「一個人用手機就能拍完」的拍攝建議，要簡單實際，不需要專業團隊。\n文案：\n'+txt+'\n輸出 JSON 物件，欄位：people（出鏡人數）, who（出鏡人物）, delivery（口播方式）, shots（鏡位）, scene（拍攝場景）, cuts（鏡頭切換）, broll（B-roll）, subtitles（字幕建議）, focus（畫面重點）, cta（結尾 CTA 的畫面呈現）。';
   const r=await aiJSON(c,prompt,()=>demoShoot(c,s));
   setBusy(t,false);
-  const d=r.data||{};SHOOT.forEach(p=>{const e=$('#sh_'+p[0]);if(e&&d[p[0]]!=null)e.value=String(d[p[0]])});
-  readScript(s);persist();toast(r.demo?'已產生示範拍攝建議並保存':'已產生拍攝建議並保存',3200);
+  const rec=findScript(cid,sid);if(!rec){toast('這支文案已經不存在，結果沒有存入');return}
+  const shown=!!document.getElementById('scr_'+sid);
+  if(shown)readScript(rec);
+  const d=r.data||{},sh=Object.assign({},rec.shoot||{});SHOOT.forEach(p=>{if(d[p[0]]!=null)sh[p[0]]=String(d[p[0]])});
+  rec.shoot=sh;rec.updatedAt=iso();persist();
+  if(shown)SHOOT.forEach(p=>{const e=$('#sh_'+p[0]);if(e)e.value=sh[p[0]]||''});
+  toast(shown?(r.demo?'已產生示範拍攝建議並保存':'已產生拍攝建議並保存'):'拍攝建議已產生，存在那支文案裡',3200);
 };
 ACT.copyShoot=()=>copyText(SHOOT.map(p=>{const e=$('#sh_'+p[0]);return e&&e.value.trim()?p[1]+'：'+e.value.trim():''}).filter(Boolean).join('\n'));
 
