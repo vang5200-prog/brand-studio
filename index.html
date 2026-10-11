@@ -683,8 +683,8 @@ function parseJSON(t){
 }
 async function aiJSON(c,prompt,demoFn){
   const r=await callAI({system:sysPrompt(c),prompt:prompt+'\n\n只輸出 JSON，不要任何其他文字或說明。'});
-  if(r.demo){if(r.error)toast('AI 連線失敗（'+r.error+'），已改用示範結果',12000);return{data:demoFn(),demo:true}}
-  try{return{data:parseJSON(r.text),demo:false}}catch(e){toast('AI 回覆格式無法解析，已改用示範結果',12000);return{data:demoFn(),demo:true}}
+  if(r.demo){if(r.error)toast('AI 連線失敗（'+r.error+'），已改用示範結果',12000);return{data:demoFn(),demo:true,error:r.error||'沒有設定 AI 連線'}}
+  try{return{data:parseJSON(r.text),demo:false}}catch(e){toast('AI 回覆格式無法解析，已改用示範結果',12000);return{data:demoFn(),demo:true,error:'AI 有回覆，但格式無法解析。開頭是：'+short(String(r.text||''),80)}}
 }
 
 /* ============ 內建示範產生器（沒有 API 時使用） ============
@@ -1074,7 +1074,7 @@ function candHTML(s){
    +a.map((v,i)=>{
      const hits=bw.map(w=>[w,String(v.full||'').split(w).length-1]).filter(x=>x[1]>0);
      return '<details class="cand"'+(i===0?' open':'')+'><summary><b>'+esc(v.label||'版本')+'</b> <span class="small muted">'+esc(fdate(v.createdAt))+(v.demo?'・示範':'')+'</span></summary>'
-      +(v.demo?'<div class="candwarn">⚠ 這是「示範版本」，不是 AI 寫的：AI 沒有連上。請到「設定」檢查雲端同步，或「測試雲端 AI」。</div>':'')
+      +(v.demo?'<div class="candwarn">⚠ 這是「示範版本」，不是 AI 寫的：AI 沒有連上。<br>原因：'+esc(v.err||'沒有收到錯誤訊息')+'</div>':'')
       +(hits.length?'<div class="candwarn">⚠ 含有你標示要避免的詞：'+esc(hits.map(x=>x[0]+(x[1]>1?'×'+x[1]:'')).join('、'))+'</div>':'')
       +'<div class="candtxt">'+esc(v.full||composeFull(v))+'</div>'
       +'<div class="acts"><button class="btn gold sm" data-act="useCand" data-id="'+esc(v.id)+'">使用這版</button><button class="btn sm" data-act="copyCand" data-id="'+esc(v.id)+'">複製</button><button class="btn sm danger" data-act="delCand" data-id="'+esc(v.id)+'">刪除</button></div></details>';
@@ -1111,11 +1111,11 @@ ACT.genScript=async t=>{
   if(!rec){toast('這支文案已經不存在，結果沒有存入');return}
   const shown=!!document.getElementById('scr_'+sid);
   if(shown)readScript(rec);
-  const vs=arr.map((x,i)=>{const o={id:uid(),label:String(x.label||'版本 '+'ABC'[i]),createdAt:iso(),demo:!!r.demo};SECTIONS.forEach(k=>{o[k]=String(x[k]==null?'':x[k]).trim()});o.full=cleanSpoken(x.full||composeFull(o));return o});
+  const vs=arr.map((x,i)=>{const o={id:uid(),label:String(x.label||'版本 '+'ABC'[i]),createdAt:iso(),demo:!!r.demo,err:r.demo?String(r.error||''):''};SECTIONS.forEach(k=>{o[k]=String(x[k]==null?'':x[k]).trim()});o.full=cleanSpoken(x.full||composeFull(o));return o});
   if(!vs.length){toast('沒有取得文案，請再試一次');return}
   if(!r.demo&&vs.some(v=>LABEL_LEAK.test(v.full)))toast('文案中出現欄位名稱，請檢查後再使用',4200);
   rec.candidates=vs.concat(rec.candidates||[]).slice(0,6);rec.updatedAt=iso();persist();
-  if(shown){render(true);const e=$('#cands');if(e)e.scrollIntoView({block:'start'});toast(r.demo?'注意：這是示範版本，不是 AI 寫的，AI 沒有連上。請到「設定」檢查雲端同步':'已產生 '+vs.length+' 個版本，往下看「AI 產生的版本」',r.demo?10000:3600)}
+  if(shown){render(true);const e=$('#cands');if(e)e.scrollIntoView({block:'start'});(r.demo?info('AI 沒有連上，這是示範版本','原因：'+(r.error||'沒有收到錯誤訊息')+'\n\n下面的版本不是 AI 寫的，請不要使用。把這段原因截圖給我。'):toast('已產生 '+vs.length+' 個版本，往下看「AI 產生的版本」',3600))}
   else toast('文案已產生，存在「'+short(rec.title,14)+'」的版本清單，回到那支文案就看得到',4200);
 };
 ACT.useCand=async t=>{
