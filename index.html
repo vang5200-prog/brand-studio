@@ -94,6 +94,9 @@ select.inp{background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50
 .cand{border-top:1px solid var(--line);padding:10px 0}.cand summary{cursor:pointer;padding:4px 0}
 .candtxt{white-space:pre-wrap;line-height:1.85;margin:8px 0;font-size:15px}
 .candwarn{color:var(--gold);font-size:13px;margin:6px 0}
+.bigcard{text-align:center;padding:22px 16px}.bigcard h2{margin:0 0 6px}.bigcard .btn.big{height:56px;font-size:18px;margin-top:12px}
+.guide{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 6px}.guide span{font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid var(--line,#3a3326);color:var(--muted)}.guide span.on{background:var(--gold);color:#1b1407;border-color:var(--gold);font-weight:700}.guide span.done{opacity:.55}
+.guidehint{margin:0 0 12px;font-size:14px;color:var(--gold)}
 .autosv{align-self:center;font-size:12px;color:var(--muted);white-space:nowrap}
 
 .chain{list-style:none;margin:0 0 4px;padding:0}
@@ -680,8 +683,8 @@ function parseJSON(t){
 }
 async function aiJSON(c,prompt,demoFn){
   const r=await callAI({system:sysPrompt(c),prompt:prompt+'\n\n只輸出 JSON，不要任何其他文字或說明。'});
-  if(r.demo){if(r.error)toast('AI 連線失敗（'+r.error+'），已改用示範結果',4000);return{data:demoFn(),demo:true}}
-  try{return{data:parseJSON(r.text),demo:false}}catch(e){toast('AI 回覆格式無法解析，已改用示範結果',4000);return{data:demoFn(),demo:true}}
+  if(r.demo){if(r.error)toast('AI 連線失敗（'+r.error+'），已改用示範結果',12000);return{data:demoFn(),demo:true}}
+  try{return{data:parseJSON(r.text),demo:false}}catch(e){toast('AI 回覆格式無法解析，已改用示範結果',12000);return{data:demoFn(),demo:true}}
 }
 
 /* ============ 內建示範產生器（沒有 API 時使用） ============
@@ -814,9 +817,10 @@ function pageDashboard(){
   const total=BRAND.length+PERSONA.length,filled=BRAND.filter(f=>c.brand[f.k]).length+PERSONA.filter(f=>c.persona[f.k]).length,pct=Math.round(filled/total*100);
   const saved=c.scripts.filter(s=>s.status!=='草稿').length+c.assets.length;
   const st=[['stories',c.stories.length,'品牌故事'],['topics',c.topics.filter(t=>t.status==='待製作').length,'待製作選題'],['studio',c.scripts.length,'已建立文案'],['assets',saved,'已保存內容'],['cases',c.cases.length,'客戶案例'],['ctas',c.ctas.length,'CTA'],['funnels',c.funnels.length,'內容漏斗']];
-  return '<div class="card hi"><h2>'+esc(c.name)+'</h2><p class="muted">'+esc(c.brand.identity||c.persona.oneLine||'尚未填寫身份與定位')+'</p><div class="meter" aria-label="品牌記憶完整度"><i style="width:'+pct+'%"></i></div><p class="small muted">品牌記憶完整度 '+pct+'%。資料越完整，AI 產生的內容越像你。'+(pct<50?' <a href="#/brand">先補品牌記憶</a>':'')+'</p></div>'
+  return '<div class="card hi bigcard"><h2>做一支新腳本</h2><p class="muted small">從選題開始，一步一步帶你寫到可以複製去拍。</p><button class="btn gold block big" data-act="startNew">開始做一支新腳本</button></div>'
+   +'<div class="card hi"><h2>'+esc(c.name)+'</h2><p class="muted">'+esc(c.brand.identity||c.persona.oneLine||'尚未填寫身份與定位')+'</p><div class="meter" aria-label="品牌記憶完整度"><i style="width:'+pct+'%"></i></div><p class="small muted">品牌記憶完整度 '+pct+'%。資料越完整，AI 產生的內容越像你。'+(pct<50?' <a href="#/brand">先補品牌記憶</a>':'')+'</p></div>'
    +'<div class="stats">'+st.map(s=>'<a class="stat" href="#/'+s[0]+'"><b>'+s[1]+'</b><span>'+s[2]+'</span></a>').join('')+'</div>'
-   +'<h3 class="sec-t">快速入口</h3><div class="quick"><button class="btn gold" data-act="addEnt" data-ent="stories">新增故事</button><a class="btn" href="#/topics">找選題</a><button class="btn" data-act="newScript">建立文案</button><a class="btn" href="#/teardown">拆解影片</a><a class="btn" href="#/chat">AI顧問</a></div>';
+   +'<h3 class="sec-t">其他入口</h3><div class="quick"><button class="btn gold" data-act="addEnt" data-ent="stories">新增故事</button><a class="btn" href="#/topics">找選題</a><button class="btn" data-act="newScript">建立文案</button><a class="btn" href="#/teardown">拆解影片</a><a class="btn" href="#/chat">AI顧問</a></div>';
 }
 function pageClients(){
   const list=DB.clients.map(c=>{const on=c.id===DB.currentClientId;return '<article class="card item'+(on?' hi':'')+'"><h4>'+esc(c.name)+'</h4><div class="badges">'+(on?'<span class="badge gold">使用中</span>':'')+'<span class="badge">故事 '+c.stories.length+'</span><span class="badge">選題 '+c.topics.length+'</span><span class="badge">文案 '+c.scripts.length+'</span><span class="badge">建立於 '+fdate(c.createdAt)+'</span></div><div class="acts">'+(on?'':'<button class="btn sm gold" data-act="switchClient" data-id="'+esc(c.id)+'">切換到此業主</button>')+'<button class="btn sm" data-act="renameClient" data-id="'+esc(c.id)+'">編輯名稱</button><button class="btn sm danger" data-act="delClient" data-id="'+esc(c.id)+'">刪除</button></div></article>'}).join('');
@@ -843,11 +847,18 @@ function pageTopics(){
 function pageStudio(){
   return '<p class="muted">從選題開始，或直接建立空白文案。每支影片都能產生口播文案與一個人就能拍的拍攝建議。</p><div class="bar"><button class="btn gold" data-act="pickTopic">從選題開始</button><button class="btn" data-act="newScript">新增空白文案</button></div>'+collectionView('scripts',()=>itemsOf('scripts'));
 }
+function guideHTML(s){
+  const has=CAND_KEYS.some(k=>String(s[k]||'').trim()),cand=(s.candidates||[]).length>0;
+  const cur2=!has&&!cand?2:(!has&&cand?3:4);
+  const names=['選題','產生文案','選一版','修改保存'];
+  const hint=cur2===2?'下一步：按下面金色的「用 AI 產生文案」，等 30 到 60 秒。':cur2===3?'下一步：往下找「AI 產生的版本」，挑一版按「使用這版」。':'下一步：把內容改成你的樣子，按「保存」，再按「複製口播文案」拿去拍。';
+  return '<div class="guide">'+names.map((n,i)=>'<span class="'+(i+1===cur2?'on':(i+1<cur2?'done':''))+'">'+(i+1<cur2?'✓ ':'')+(i+1)+' '+n+'</span>').join('')+'</div><p class="guidehint">'+hint+'</p>';
+}
 function pageScript(id){
   const c=cur(),s=c.scripts.find(x=>x.id===id);
   if(!s)return '<div class="empty">找不到這支文案。<br><a class="btn gold" href="#/studio">回到工作區</a></div>';
   const sh=s.shoot||{};const F=ENT.scripts.fields;
-  return '<span id="scr_'+esc(s.id)+'" hidden></span><a class="back" href="#/studio">‹ 回到短影音工作區</a><div class="card">'+F.map(f=>fieldHTML(f,s[f.k],'s_')).join('')
+  return '<span id="scr_'+esc(s.id)+'" hidden></span><a class="back" href="#/studio">‹ 回到短影音工作區</a>'+guideHTML(s)+'<div class="card">'+F.map(f=>fieldHTML(f,s[f.k],'s_')).join('')
    +'<div class="acts"><button class="btn gold" data-act="genScript">用 AI 產生文案</button><button class="btn" data-act="composeScript">依段落組合口播</button><button class="btn" data-act="copyScript">複製口播文案</button></div></div>'
    +'<div class="card"><h3>拍攝建議</h3><p class="muted small">預設一個人、一支手機就能完成。</p>'+SHOOT.map(p=>fieldHTML({k:p[0],l:p[1],t:'area',rows:2},sh[p[0]],'sh_')).join('')+'<div class="acts"><button class="btn gold" data-act="genShoot">產生拍攝建議</button><button class="btn" data-act="copyShoot">複製拍攝建議</button></div></div>'
    +candHTML(s)+'<div class="savebar"><span id="autosv" class="autosv"></span><button class="btn gold" data-act="saveScript" data-id="'+esc(s.id)+'">保存</button></div>';
@@ -1004,6 +1015,21 @@ ACT.suggDrop=t=>{UI.sugg.splice(+t.dataset.i,1);const box=$('#sugg');if(box)box.
 function mkScript(x){return Object.assign({id:uid(),createdAt:iso(),title:'未命名短影音文案',candidates:[],goal:'',hook:'',problem:'',story:'',twist:'',body:'',solution:'',ending:'',cta:'',full:'',status:'草稿',topicId:'',shoot:{}},x||{})}
 ACT.newScript=()=>{const c=cur();if(!c){toast('請先建立業主專案');location.hash='#/clients';return}const s=mkScript();c.scripts.push(s);persist();location.hash='#/script/'+s.id};
 ACT.topicToScript=t=>{const c=cur(),tp=c.topics.find(x=>x.id===t.dataset.id);if(!tp)return;const s=mkScript({title:tp.title,goal:tp.goal||'',topicId:tp.id});c.scripts.push(s);if(tp.status==='待製作')tp.status='製作中';persist();toast('已建立文案，按「用 AI 產生文案」開始');location.hash='#/script/'+s.id};
+ACT.startNew=()=>{
+  const c=cur();if(!c){toast('請先建立業主專案');location.hash='#/clients';return}
+  const tps=c.topics.filter(t=>t.status==='待製作').slice(0,8);
+  modal({title:'做一支新腳本',body:
+    '<p class="muted small">第 1 步：先決定這支要講什麼。</p>'
+    +(tps.length?'<h4>從你保存的選題挑</h4>'+tps.map(tp=>'<button class="btn block" style="margin-bottom:8px;justify-content:flex-start;text-align:left;height:auto;padding:12px 14px" data-act="topicToScript" data-id="'+esc(tp.id)+'">'+esc(tp.title)+'</button>').join(''):'<p class="muted small">目前沒有「待製作」的選題。</p>')
+    +'<h4>或自己輸入題目</h4><input id="nt_title" class="inp" placeholder="例如：工作做得比誰都多，為什麼升遷永遠沒輪到你？" style="width:100%;margin-bottom:8px">'
+    +'<div class="acts"><button class="btn gold" data-act="newFromTitle" data-goal="獲客">這支要獲客</button><button class="btn" data-act="newFromTitle" data-goal="">這支不獲客</button></div>'
+    +'<h4>還沒有想法？</h4><a class="btn block" href="#/topics" data-act="closeModal">讓 AI 給我 4 個選題建議</a>'});
+};
+ACT.newFromTitle=t=>{
+  const c=cur();if(!c)return;const e=$('#nt_title');const title=e?e.value.trim():'';
+  if(!title){toast('請先輸入題目');return}
+  const s=mkScript({title:title,goal:t.dataset.goal||''});c.scripts.push(s);persist();closeModal(true);toast('已建立，往下照步驟做');location.hash='#/script/'+s.id;
+};
 ACT.pickTopic=()=>{
   const c=cur();
   if(!c.topics.length){info('還沒有選題','先到「選題建議」保存一些選題，再回來從選題開始。');return}
@@ -1048,6 +1074,7 @@ function candHTML(s){
    +a.map((v,i)=>{
      const hits=bw.map(w=>[w,String(v.full||'').split(w).length-1]).filter(x=>x[1]>0);
      return '<details class="cand"'+(i===0?' open':'')+'><summary><b>'+esc(v.label||'版本')+'</b> <span class="small muted">'+esc(fdate(v.createdAt))+(v.demo?'・示範':'')+'</span></summary>'
+      +(v.demo?'<div class="candwarn">⚠ 這是「示範版本」，不是 AI 寫的：AI 沒有連上。請到「設定」檢查雲端同步，或「測試雲端 AI」。</div>':'')
       +(hits.length?'<div class="candwarn">⚠ 含有你標示要避免的詞：'+esc(hits.map(x=>x[0]+(x[1]>1?'×'+x[1]:'')).join('、'))+'</div>':'')
       +'<div class="candtxt">'+esc(v.full||composeFull(v))+'</div>'
       +'<div class="acts"><button class="btn gold sm" data-act="useCand" data-id="'+esc(v.id)+'">使用這版</button><button class="btn sm" data-act="copyCand" data-id="'+esc(v.id)+'">複製</button><button class="btn sm danger" data-act="delCand" data-id="'+esc(v.id)+'">刪除</button></div></details>';
@@ -1088,7 +1115,7 @@ ACT.genScript=async t=>{
   if(!vs.length){toast('沒有取得文案，請再試一次');return}
   if(!r.demo&&vs.some(v=>LABEL_LEAK.test(v.full)))toast('文案中出現欄位名稱，請檢查後再使用',4200);
   rec.candidates=vs.concat(rec.candidates||[]).slice(0,6);rec.updatedAt=iso();persist();
-  if(shown){render(true);const e=$('#cands');if(e)e.scrollIntoView({block:'start'});toast(r.demo?'已產生示範版本（尚未設定 AI API），往下看「AI 產生的版本」':'已產生 '+vs.length+' 個版本，往下看「AI 產生的版本」',3600)}
+  if(shown){render(true);const e=$('#cands');if(e)e.scrollIntoView({block:'start'});toast(r.demo?'注意：這是示範版本，不是 AI 寫的，AI 沒有連上。請到「設定」檢查雲端同步':'已產生 '+vs.length+' 個版本，往下看「AI 產生的版本」',r.demo?10000:3600)}
   else toast('文案已產生，存在「'+short(rec.title,14)+'」的版本清單，回到那支文案就看得到',4200);
 };
 ACT.useCand=async t=>{
@@ -1145,9 +1172,9 @@ ACT.tdRewrite=async t=>{
   const r=await callAI({system:sysPrompt(c),prompt:prompt});
   setBusy(t,false);
   let out;
-  if(r.demo){if(r.error)toast('AI 連線失敗（'+r.error+'），已改用示範結果',4000);out=demoRewrite(c,an)}else out=r.text.trim();
+  if(r.demo){if(r.error)toast('AI 連線失敗（'+r.error+'），已改用示範結果',12000);out=demoRewrite(c,an)}else out=r.text.trim();
   $('#td_rewritten').value=out;
-  toast(r.demo?'已產生示範版本（尚未設定 AI API）':'已產生原創版本',3200);
+  toast(r.demo?'注意：這是示範結果，不是 AI 寫的，AI 沒有連上。請到「設定」檢查雲端同步':'已產生原創版本',r.demo?10000:3200);
 };
 ACT.tdCopy=()=>copyText($('#td_rewritten').value);
 ACT.tdSave=()=>{
