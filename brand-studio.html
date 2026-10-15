@@ -173,6 +173,7 @@ select.inp{background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50
 .stack .btn{display:flex;flex-direction:column;align-items:flex-start;width:100%;height:auto;min-height:56px;padding:12px 14px;margin-bottom:10px;text-align:left}
 .stack .btn small{display:block;margin-top:2px;font-size:13px;font-weight:400;color:var(--mu)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+#updbar{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:70;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 10px 10px 16px;border-radius:14px;background:#d6a84c;color:#1b1407;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.5)}#updbar button{min-height:40px;padding:0 14px;border-radius:10px;border:1px solid #1b1407;background:#1b1407;color:#ecc77a;font:inherit;font-size:15px;font-weight:700;cursor:pointer}#updbar button.x{background:transparent;color:#1b1407;border-color:transparent;font-size:20px;padding:0 10px}#updbar .acts{display:flex;gap:6px;align-items:center}@media(min-width:900px){#updbar{left:auto;right:24px;bottom:24px;width:380px}}
 </style>
 </head>
 <body>
@@ -198,6 +199,7 @@ select.inp{background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50
 'use strict';
 
 /* ============ 基本設定與工具 ============ */
+const BUILD='2026-10-15-c'; // 程式版本代碼：每次更新程式都要換一個新的
 const APP={V:1,K:{data:'bsw.data',set:'bsw.settings',bad:'bsw.data.unreadable',sync:'bsw.sync',prev:'bsw.data.prev'}};
 const $=(s,r)=>(r||document).querySelector(s);
 const $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
@@ -607,6 +609,29 @@ async function linkSync(){
   return{ok:true,pendingChoice:true};
 }
 
+/* 新版本提醒：每次打開（和回到畫面）時，偷偷看一下網站上的程式版本代碼；不一樣就在畫面下方出現「按這裡更新」 */
+const UPD={last:0,busy:false,shown:false};
+function selfUrl(){let u=location.href.split('#')[0].split('?')[0];if(/\/$/.test(u))u+='brand-studio.html';return u}
+async function checkUpdate(force){
+  if(UPD.shown||UPD.busy)return;
+  const now=Date.now();if(!force&&now-UPD.last<5*60*1000)return;
+  UPD.busy=true;UPD.last=now;
+  try{
+    const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),15000);
+    const res=await fetch(selfUrl()+'?chk='+now,{cache:'no-store',signal:ctl.signal});clearTimeout(to);
+    if(!res.ok)return;
+    const m=/const BUILD='(\d[^']*)'/.exec(await res.text());
+    if(m&&m[1]!==BUILD)showUpdate();
+  }catch(e){}finally{UPD.busy=false}
+}
+function showUpdate(){
+  if(UPD.shown||document.getElementById('updbar'))return;
+  UPD.shown=true;
+  const b=document.createElement('div');b.id='updbar';b.setAttribute('role','status');
+  b.innerHTML='<span>有新版本了</span><span class="acts"><button type="button" data-act="doUpdate">按這裡更新</button><button type="button" class="x" data-act="hideUpdate" aria-label="這次先不要">×</button></span>';
+  document.body.appendChild(b);
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()});
 function syncStart(){
   if(!backendOn())return;
   clearInterval(SYNC.poll);
@@ -886,7 +911,7 @@ function pageAssets(){
 function directOk(){return !!(SET.endpoint&&SET.model&&SET.key)}
 function aiStatus(){return backendOn()||directOk()}
 function pageSettings(){
-  return syncCardHTML()+'<details class="card"><summary style="cursor:pointer;font-weight:700;font-size:16px">AI 直接連線（進階）'+(backendOn()?'<span class="small muted" style="font-weight:400">　已改用雲端 AI，不需要設定</span>':'')+'</summary><p class="muted" style="margin-top:12px">'+(backendOn()?'已啟用雲端後端，AI 會走後端，這裡的設定目前不會被使用。':(directOk()?'狀態：已設定，AI 功能會直接呼叫你填的 API。':'狀態：尚未設定。所有資料功能照常使用，AI 功能顯示示範結果。'))+'</p>'
+  return syncCardHTML()+'<p class="small muted" style="margin:8px 4px">程式版本：'+esc(BUILD)+'（電腦和手機的版本代碼要一樣，不一樣代表其中一台還在用舊版）</p><details class="card"><summary style="cursor:pointer;font-weight:700;font-size:16px">AI 直接連線（進階）'+(backendOn()?'<span class="small muted" style="font-weight:400">　已改用雲端 AI，不需要設定</span>':'')+'</summary><p class="muted" style="margin-top:12px">'+(backendOn()?'已啟用雲端後端，AI 會走後端，這裡的設定目前不會被使用。':(directOk()?'狀態：已設定，AI 功能會直接呼叫你填的 API。':'狀態：尚未設定。所有資料功能照常使用，AI 功能顯示示範結果。'))+'</p>'
    +'<div class="fld"><label for="set_endpoint">AI API Endpoint</label><input id="set_endpoint" class="inp" type="url" inputmode="url" autocomplete="off" placeholder="https://api.openai.com/v1/responses" value="'+esc(SET.endpoint)+'"></div>'
    +'<div class="fld"><label for="set_model">Model</label><input id="set_model" class="inp" type="text" autocomplete="off" placeholder="模型名稱" value="'+esc(SET.model)+'"></div>'
    +'<div class="fld"><label for="set_key">API Key</label><input id="set_key" class="inp" type="password" autocomplete="new-password" placeholder="'+(SET.key?'已儲存（為安全不顯示），留空表示不變更':'貼上你的 API Key')+'"></div>'
@@ -932,6 +957,17 @@ window.addEventListener('hashchange',()=>{if(!tryApplyPending(true))render()});
 /* ============ 動作 ============ */
 const ACT={};
 ACT.closeModal=()=>closeModal();
+ACT.hideUpdate=()=>{const b=document.getElementById('updbar');if(b)b.remove()};
+ACT.doUpdate=async t=>{
+  setBusy(t,true,'更新中…');
+  try{
+    if(typeof AUTO_T!=='undefined'&&AUTO_T){clearTimeout(AUTO_T);AUTO_T=null;autoSaveScript(AUTO_SID)}
+    if(backendOn()&&SYNC.dirty)await Promise.race([pushNow(),new Promise(r=>setTimeout(r,4000))]);
+    await fetch(selfUrl(),{cache:'reload'});
+  }catch(e){}
+  location.replace(selfUrl()+'?v='+Date.now()+location.hash);
+};
+
 ACT.menu=()=>modal({title:'選單',body:navHTML(route().page)});
 ACT.pickClient=()=>{
   const body=(DB.clients.length?DB.clients.map(c=>'<button class="btn block" style="margin-bottom:8px;justify-content:space-between" data-act="switchClient" data-id="'+esc(c.id)+'"><span>'+esc(c.name)+'</span><span>'+(c.id===DB.currentClientId?'使用中':'')+'</span></button>').join(''):'<p class="muted">還沒有業主專案。</p>')+'<a class="btn block gold" href="#/clients" data-act="closeModal">管理業主專案</a>';
@@ -1404,6 +1440,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#modal-root').cl
 
 render();
 syncStart();
+setTimeout(()=>checkUpdate(true),4000);
 })();
 </script>
 </body>
