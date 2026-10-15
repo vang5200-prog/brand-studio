@@ -997,14 +997,18 @@ ACT.interview=()=>{UI.iv={i:0,a:[]};showInterview()};
 
 /* 選題 */
 ACT.pickTopicType=t=>{UI.topicType=t.dataset.v;$$('.chip[data-act="pickTopicType"]').forEach(b=>b.classList.toggle('on',b.dataset.v===UI.topicType))};
+async function requestTopics(c,type){
+  const prompt='請依品牌資料，提出 4 個「'+type+'」的短影音選題。每個選題要說明為什麼適合這位業主、使用哪一則既有故事（story 欄位請填故事標題，沒有就留空）。\n規則：title 必須是一句獨立、完整的短影音標題（約 30 字內），不得夾帶客群描述、現況、推薦理由或其他欄位內容，也不得用「…」截斷；各欄位資料必須分開填寫，彼此不可混用。\n輸出 JSON 陣列，每個物件包含欄位：title, type（固定填「'+type+'」）, goal, audience, reason, story, angle, message。';
+  const r=await aiJSON(c,prompt,()=>demoTopics(c,type));
+  let arr=Array.isArray(r.data)?r.data:(r.data&&r.data.topics)||[];
+  arr=arr.map(x=>({title:String(x.title||'').replace(/\.{3}|…/g,'').trim(),type:type,goal:String(x.goal||''),audience:String(x.audience||''),reason:String(x.reason||''),story:String(x.story||''),angle:String(x.angle||''),message:String(x.message||'')})).filter(x=>x.title);
+  return{r:r,arr:arr};
+}
 ACT.genTopics=async t=>{
   const c=cur();setBusy(t,true,'產生中…');
   const type=UI.topicType;
-  const prompt='請依品牌資料，提出 4 個「'+type+'」的短影音選題。每個選題要說明為什麼適合這位業主、使用哪一則既有故事（story 欄位請填故事標題，沒有就留空）。\n規則：title 必須是一句獨立、完整的短影音標題（約 30 字內），不得夾帶客群描述、現況、推薦理由或其他欄位內容，也不得用「…」截斷；各欄位資料必須分開填寫，彼此不可混用。\n輸出 JSON 陣列，每個物件包含欄位：title, type（固定填「'+type+'」）, goal, audience, reason, story, angle, message。';
-  const r=await aiJSON(c,prompt,()=>demoTopics(c,type));
+  const q=await requestTopics(c,type);const r=q.r,arr=q.arr;
   setBusy(t,false);
-  let arr=Array.isArray(r.data)?r.data:(r.data&&r.data.topics)||[];
-  arr=arr.map(x=>({title:String(x.title||'').replace(/\.{3}|…/g,'').trim(),type:type,goal:String(x.goal||''),audience:String(x.audience||''),reason:String(x.reason||''),story:String(x.story||''),angle:String(x.angle||''),message:String(x.message||'')})).filter(x=>x.title);
   if(!arr.length){toast('沒有取得選題，請再試一次');return}
   UI.sugg=arr;const box=$('#sugg');if(box)box.innerHTML=suggHTML();
   toast(r.demo?'已產生示範選題（尚未設定 AI API）':'已產生選題建議',3200);
@@ -1026,12 +1030,31 @@ ACT.startNew=()=>{
     +(tps.length?'<h4>從你保存的選題挑</h4>'+tps.map(tp=>'<button class="btn block" style="margin-bottom:8px;justify-content:flex-start;text-align:left;height:auto;padding:12px 14px" data-act="topicToScript" data-id="'+esc(tp.id)+'">'+esc(tp.title)+'</button>').join(''):'<p class="muted small">目前沒有「待製作」的選題。</p>')
     +'<h4>或自己輸入題目</h4><input id="nt_title" class="inp" placeholder="例如：工作做得比誰都多，為什麼升遷永遠沒輪到你？" style="width:100%;margin-bottom:8px">'
     +'<div class="acts"><button class="btn gold" data-act="newFromTitle" data-goal="獲客">這支要獲客</button><button class="btn" data-act="newFromTitle" data-goal="">這支不獲客</button></div>'
-    +'<h4>還沒有想法？</h4><a class="btn block" href="#/topics" data-act="closeModal">讓 AI 給我 4 個選題建議</a>'});
+    +'<h4>還沒有想法？讓 AI 想題目</h4><p class="muted small">選一種類型，按下去等 30 秒左右，題目會直接出現在下面，點一個就開始做腳本，不用另外保存。</p><div class="chips" role="group" aria-label="選題類型">'+TOPIC_TYPES.map(x=>'<button class="chip'+(x===UI.topicType?' on':'')+'" data-act="pickTopicType" data-v="'+x+'">'+x+'</button>').join('')+'</div><button class="btn gold block" id="nt_gen" data-act="ntGen">讓 AI 給我 4 個題目</button><div id="nt_list"></div>'});
 };
 ACT.newFromTitle=t=>{
   const c=cur();if(!c)return;const e=$('#nt_title');const title=e?e.value.trim():'';
   if(!title){toast('請先輸入題目');return}
   const s=mkScript({title:title,goal:t.dataset.goal||''});c.scripts.push(s);persist();closeModal(true);toast('已建立，往下照步驟做');location.hash='#/script/'+s.id;
+};
+ACT.ntGen=async t=>{
+  const c=cur();if(!c)return;setBusy(t,true,'AI 想題目中…（約 30 秒，請先不要關閉）');
+  const q=await requestTopics(c,UI.topicType);
+  const box=$('#nt_list');
+  if(box)setBusy(t,false);
+  if(!box)return;
+  t.textContent='換一批題目';
+  if(q.r.demo){UI.sugg=[];box.innerHTML='<p class="candwarn">⚠ AI 沒有連上，所以沒有題目。<br>原因：'+esc(q.r.error||'未知')+'<br>請把這段原因截圖給我。</p>';return}
+  if(!q.arr.length){UI.sugg=[];box.innerHTML='<p class="candwarn">AI 這次沒有給出題目，請再按一次。</p>';return}
+  UI.sugg=q.arr;
+  box.innerHTML='<h4>點一個，開始做腳本</h4>'+q.arr.map((s,i)=>'<button class="btn block" style="margin-bottom:8px;justify-content:flex-start;text-align:left;height:auto;padding:12px 14px;flex-direction:column;align-items:flex-start" data-act="ntPick" data-i="'+i+'"><b>'+esc(s.title)+'</b>'+(s.reason?'<small class="muted" style="font-weight:400">'+esc(short(s.reason,60))+'</small>':'')+'</button>').join('');
+};
+ACT.ntPick=t=>{
+  const c=cur(),s=(UI.sugg||[])[+t.dataset.i];if(!c||!s)return;
+  const tp=Object.assign({id:uid(),createdAt:iso()},suggToTopic(s),{status:'製作中'});c.topics.push(tp);
+  UI.sugg.splice(+t.dataset.i,1);
+  const sc=mkScript({title:tp.title,goal:tp.goal||'',topicId:tp.id});c.scripts.push(sc);
+  persist();closeModal(true);toast('已建立，往下照步驟做');location.hash='#/script/'+sc.id;
 };
 ACT.pickTopic=()=>{
   const c=cur();
